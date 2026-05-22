@@ -1,172 +1,91 @@
 # Karpathy-Inspired Claude Code Guidelines
 
-> Check out my new project [Multica](https://github.com/multica-ai/multica) — an open-source platform for running and managing coding agents with reusable skills.
->
-> Follow me on X: [https://x.com/jiayuan_jy](https://x.com/jiayuan_jy)
+<p align="center">
+  <strong>A practical instruction pack that makes coding agents more reliable, simpler, and less destructive.</strong>
+</p>
 
-A single `CLAUDE.md` file to improve Claude Code behavior, derived from [Andrej Karpathy's observations](https://x.com/karpathy/status/2015883857489522876) on LLM coding pitfalls.
+<p align="center">
+  <a href="./README.md">English</a> · <a href="./README.zh.md">简体中文</a>
+</p>
 
-English | [简体中文](./README.zh.md)
+<p align="center">
+  <img alt="Version" src="https://img.shields.io/badge/version-1.1.0-2563eb">
+  <img alt="License" src="https://img.shields.io/badge/license-MIT-16a34a">
+  <img alt="Validation" src="https://img.shields.io/badge/validation-required-f59e0b">
+</p>
 
-## The Problems
+A single guideline system inspired by [Andrej Karpathy's observations](https://x.com/karpathy/status/2015883857489522876) on common LLM coding failure modes.
 
-From Andrej's post:
+## Why This Exists
 
-> "The models make wrong assumptions on your behalf and just run along with them without checking. They don't manage their confusion, don't seek clarifications, don't surface inconsistencies, don't present tradeoffs, don't push back when they should."
+Most coding agents fail in the same predictable ways:
 
-> "They really like to overcomplicate code and APIs, bloat abstractions, don't clean up dead code... implement a bloated construction over 1000 lines when 100 would do."
+- They make silent assumptions.
+- They overengineer straightforward tasks.
+- They modify unrelated code while fixing one issue.
+- They execute without clear, testable success criteria.
 
-> "They still sometimes change/remove comments and code they don't sufficiently understand as side effects, even if orthogonal to the task."
+This repo gives you one coherent fix: a concise behavior contract plus tooling that keeps every distribution format in sync.
 
-## The Solution
+## The 4 Principles
 
-Four principles in one file that directly address these issues:
-
-| Principle | Addresses |
-|-----------|-----------|
-| **Think Before Coding** | Wrong assumptions, hidden confusion, missing tradeoffs |
-| **Simplicity First** | Overcomplication, bloated abstractions |
-| **Surgical Changes** | Orthogonal edits, touching code you shouldn't |
-| **Goal-Driven Execution** | Leverage through tests-first, verifiable success criteria |
-
-## The Four Principles in Detail
-
-### 1. Think Before Coding
-
-**Don't assume. Don't hide confusion. Surface tradeoffs.**
-
-LLMs often pick an interpretation silently and run with it. This principle forces explicit reasoning:
-
-- **State assumptions explicitly** — If uncertain, ask rather than guess
-- **Present multiple interpretations** — Don't pick silently when ambiguity exists
-- **Push back when warranted** — If a simpler approach exists, say so
-- **Stop when confused** — Name what's unclear and ask for clarification
-
-### 2. Simplicity First
-
-**Minimum code that solves the problem. Nothing speculative.**
-
-Combat the tendency toward overengineering:
-
-- No features beyond what was asked
-- No abstractions for single-use code
-- No "flexibility" or "configurability" that wasn't requested
-- No error handling for impossible scenarios
-- If 200 lines could be 50, rewrite it
-
-**The test:** Would a senior engineer say this is overcomplicated? If yes, simplify.
-
-### 3. Surgical Changes
-
-**Touch only what you must. Clean up only your own mess.**
-
-When editing existing code:
-
-- Don't "improve" adjacent code, comments, or formatting
-- Don't refactor things that aren't broken
-- Match existing style, even if you'd do it differently
-- If you notice unrelated dead code, mention it — don't delete it
-
-When your changes create orphans:
-
-- Remove imports/variables/functions that YOUR changes made unused
-- Don't remove pre-existing dead code unless asked
-
-**The test:** Every changed line should trace directly to the user's request.
-
-### 4. Goal-Driven Execution
-
-**Define success criteria. Loop until verified.**
-
-Transform imperative tasks into verifiable goals:
-
-| Instead of... | Transform to... |
-|--------------|-----------------|
-| "Add validation" | "Write tests for invalid inputs, then make them pass" |
-| "Fix the bug" | "Write a test that reproduces it, then make it pass" |
-| "Refactor X" | "Ensure tests pass before and after" |
-
-For multi-step tasks, state a brief plan:
-
-```
-1. [Step] → verify: [check]
-2. [Step] → verify: [check]
-3. [Step] → verify: [check]
-```
-
-Strong success criteria let the LLM loop independently. Weak criteria ("make it work") require constant clarification.
+| Principle | Prevents |
+| --- | --- |
+| Think Before Coding | Silent assumptions, hidden confusion, missing tradeoffs |
+| Simplicity First | Premature abstraction, bloated implementations |
+| Surgical Changes | Drive-by edits, style drift, unrelated refactors |
+| Goal-Driven Execution | Vague implementation without verification |
 
 ## Install
 
-**Option A: Claude Code Plugin (recommended)**
+### Option A: Claude Code Plugin (recommended)
 
-From within Claude Code, first add the marketplace:
-```
+Add marketplace:
+
+```bash
 /plugin marketplace add forrestchang/andrej-karpathy-skills
 ```
 
-Then install the plugin:
-```
+Install plugin:
+
+```bash
 /plugin install andrej-karpathy-skills@karpathy-skills
 ```
 
-This installs the guidelines as a Claude Code plugin, making the skill available across all your projects.
-
-**Option B: CLAUDE.md (per-project)**
+### Option B: CLAUDE.md (per project)
 
 New project:
+
 ```bash
 curl -o CLAUDE.md https://raw.githubusercontent.com/forrestchang/andrej-karpathy-skills/main/CLAUDE.md
 ```
 
 Existing project (append):
+
 ```bash
 echo "" >> CLAUDE.md
 curl https://raw.githubusercontent.com/forrestchang/andrej-karpathy-skills/main/CLAUDE.md >> CLAUDE.md
 ```
 
-## Using with Cursor
+## Cursor Support
 
-This repository includes a committed Cursor project rule ([`.cursor/rules/karpathy-guidelines.mdc`](.cursor/rules/karpathy-guidelines.mdc)) so the same guidelines apply when you open the project in Cursor. See **[CURSOR.md](CURSOR.md)** for setup, using the rule in other projects, and how this relates to Claude Code.
+This repository ships a committed Cursor project rule at [.cursor/rules/karpathy-guidelines.mdc](.cursor/rules/karpathy-guidelines.mdc), so the guidelines apply automatically when opened in Cursor.
 
-The canonical shared guideline content lives in **[`docs/guidelines.md`](docs/guidelines.md)**. Tool-specific files are generated by **[`scripts/sync_guidelines.py`](scripts/sync_guidelines.py)**.
+See [CURSOR.md](CURSOR.md) for setup and contributor workflow.
 
-## Key Insight
+## Canonical Source and Sync Model
 
-From Andrej:
+To prevent drift across files, guideline content is centralized and generated:
 
-> "LLMs are exceptionally good at looping until they meet specific goals... Don't tell it what to do, give it success criteria and watch it go."
+- Canonical content: [docs/guidelines.md](docs/guidelines.md)
+- Generator: [scripts/sync_guidelines.py](scripts/sync_guidelines.py)
+- Validator: [scripts/validate.py](scripts/validate.py)
 
-The "Goal-Driven Execution" principle captures this: transform imperative instructions into declarative goals with verification loops.
+Generated targets:
 
-## How to Know It's Working
-
-These guidelines are working if you see:
-
-- **Fewer unnecessary changes in diffs** — Only requested changes appear
-- **Fewer rewrites due to overcomplication** — Code is simple the first time
-- **Clarifying questions come before implementation** — Not after mistakes
-- **Clean, minimal PRs** — No drive-by refactoring or "improvements"
-
-## Customization
-
-These guidelines are designed to be merged with project-specific instructions. Add them to your existing `CLAUDE.md` or create a new one.
-
-For project-specific rules, add sections like:
-
-```markdown
-## Project-Specific Guidelines
-
-- Use TypeScript strict mode
-- All API endpoints must have tests
-- Follow the existing error handling patterns in `src/utils/errors.ts`
-```
-
-## Tradeoff Note
-
-These guidelines bias toward **caution over speed**. For trivial tasks (simple typo fixes, obvious one-liners), use judgment — not every change needs the full rigor.
-
-The goal is reducing costly mistakes on non-trivial work, not slowing down simple tasks.
+- [CLAUDE.md](CLAUDE.md)
+- [.cursor/rules/karpathy-guidelines.mdc](.cursor/rules/karpathy-guidelines.mdc)
+- [skills/karpathy-guidelines/SKILL.md](skills/karpathy-guidelines/SKILL.md)
 
 ## Development
 
@@ -176,8 +95,44 @@ Run validation before committing:
 python3 scripts/validate.py
 ```
 
-This checks plugin JSON, Cursor frontmatter, required guideline sections, and forbidden outdated wording.
+This checks plugin JSON, Cursor frontmatter, required guideline sections, canonical body sync, and forbidden outdated wording/patterns.
+
+## What Good Looks Like
+
+A healthy setup typically produces:
+
+- Smaller, cleaner diffs with fewer unrelated edits
+- Fewer overengineered rewrites
+- Clarifying questions before implementation
+- Stronger test-and-verify loops for non-trivial tasks
+
+For concrete before/after examples, see [EXAMPLES.md](EXAMPLES.md).
+
+## Repository Layout
+
+```text
+.
+├── CLAUDE.md
+├── CURSOR.md
+├── EXAMPLES.md
+├── README.md
+├── README.zh.md
+├── docs/
+│   └── guidelines.md
+├── scripts/
+│   ├── sync_guidelines.py
+│   └── validate.py
+├── skills/
+│   └── karpathy-guidelines/
+│       └── SKILL.md
+├── .claude-plugin/
+│   ├── marketplace.json
+│   └── plugin.json
+└── .github/
+    └── workflows/
+        └── validate.yml
+```
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE).
