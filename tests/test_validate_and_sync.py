@@ -274,6 +274,26 @@ class ValidationFailureModeTests(unittest.TestCase):
             f"Expected sync drift failure; got: {errors}",
         )
 
+    def test_validate_rejects_stale_readme_version_badge(self):
+        path = ROOT / "README.md"
+        original = path.read_text(encoding="utf-8")
+        errors = []
+        version = validate.get_plugin_version()
+        try:
+            broken = original.replace(f"version-{version}-", "version-0.0.0-", 1)
+            path.write_text(broken, encoding="utf-8")
+            validate.check_readme_version_badge(errors)
+        finally:
+            path.write_text(original, encoding="utf-8")
+
+        self.assertTrue(
+            any(
+                "README.md version badge does not match plugin version" in err
+                for err in errors
+            ),
+            f"Expected README badge drift failure; got: {errors}",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

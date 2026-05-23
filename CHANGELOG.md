@@ -9,6 +9,12 @@
 - Added cache/junk file validation.
 - Removed compiled Python cache files from release archives.
 - Expanded tests for validation failure modes.
+- Fixed README version badge mismatch.
+- Added validation for README badge/version consistency.
+- Updated CI to disable Python bytecode generation.
+- Re-runs validation after unit tests in CI.
+- Documented bytecode-safe local validation commands.
+- Softened remaining clarification wording to avoid unnecessary stops.
 
 ## 1.1.0
 

@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-1.1.0-2563eb">
+  <img alt="Version" src="https://img.shields.io/badge/version-1.1.1-2563eb">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-16a34a">
   <img alt="Validation" src="https://img.shields.io/badge/validation-required-f59e0b">
 </p>
@@ -106,15 +106,19 @@ python3 scripts/sync_guidelines.py
 Check sync and validation:
 
 ```bash
-python3 scripts/sync_guidelines.py --check
-python3 scripts/validate.py
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/sync_guidelines.py --check
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate.py
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p "test_*.py"
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate.py
 ```
 
 Run validation before committing:
 
 ```bash
-python3 scripts/validate.py
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate.py
 ```
+
+`PYTHONDONTWRITEBYTECODE=1` prevents Python from creating `__pycache__` and `.pyc` files, which are intentionally rejected by repository validation.
 
 This checks plugin JSON, Cursor frontmatter, required guideline sections, canonical body sync, and forbidden outdated wording/patterns.
 

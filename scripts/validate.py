@@ -76,6 +76,11 @@ def read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
+def get_plugin_version() -> str:
+    plugin = json.loads(read(ROOT / ".claude-plugin" / "plugin.json"))
+    return plugin["version"]
+
+
 def extract_marked_body(path: Path, text: str) -> str:
     if BEGIN not in text or END not in text:
         raise ValueError(f"Missing canonical body markers in {path.relative_to(ROOT)}")
@@ -356,6 +361,34 @@ def check_readme_disclaimers(errors: list[str]) -> None:
             errors.append("README.zh.md missing non-affiliation disclaimer")
 
 
+def check_readme_version_badge(errors: list[str]) -> None:
+    readme_path = ROOT / "README.md"
+    if not readme_path.exists():
+        errors.append("Missing required file: README.md")
+        return
+
+    try:
+        version = get_plugin_version()
+    except (json.JSONDecodeError, KeyError):
+        errors.append("Unable to determine plugin version for README badge validation")
+        return
+
+    readme = read(readme_path)
+    expected_badge = f"version-{version}-"
+    if expected_badge not in readme:
+        errors.append(
+            f"README.md version badge does not match plugin version {version}"
+        )
+
+    version_badges = [
+        line for line in readme.splitlines() if "img.shields.io/badge/version-" in line
+    ]
+    if len(version_badges) != 1:
+        errors.append(
+            f"README.md should contain exactly one version badge, found {len(version_badges)}"
+        )
+
+
 def check_no_junk_files(errors: list[str]) -> None:
     reported_junk_dirs: set[Path] = set()
 
@@ -388,6 +421,7 @@ def main() -> int:
     errors: list[str] = []
 
     check_plugin_metadata(errors)
+    check_readme_version_badge(errors)
     check_cursor_frontmatter(errors)
     check_frontmatter_descriptions_are_quoted(errors)
     check_content_files(errors)

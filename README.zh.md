@@ -186,15 +186,19 @@ python3 scripts/sync_guidelines.py
 再检查同步和校验：
 
 ```bash
-python3 scripts/sync_guidelines.py --check
-python3 scripts/validate.py
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/sync_guidelines.py --check
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate.py
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p "test_*.py"
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate.py
 ```
 
 提交前请先运行校验：
 
 ```bash
-python3 scripts/validate.py
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate.py
 ```
+
+`PYTHONDONTWRITEBYTECODE=1` 会阻止 Python 生成 `__pycache__` 和 `.pyc` 文件；这些缓存文件会被仓库验证拒绝。
 
 该脚本会检查插件 JSON、Cursor frontmatter、必需的指南章节，以及过时措辞是否仍然存在。
 
