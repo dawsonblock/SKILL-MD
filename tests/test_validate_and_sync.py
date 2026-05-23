@@ -245,7 +245,9 @@ class ValidationFailureModeTests(unittest.TestCase):
             if cache_root.exists() and not any(cache_root.iterdir()):
                 cache_root.rmdir()
 
-        hits = [err for err in errors if "Forbidden junk path found: .mypy_cache" in err]
+        hits = [
+            err for err in errors if "Forbidden junk path found: .mypy_cache" in err
+        ]
         self.assertEqual(
             len(hits),
             1,
