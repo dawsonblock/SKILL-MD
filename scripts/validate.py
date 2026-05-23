@@ -48,6 +48,7 @@ FORBIDDEN_PATH_PARTS = [
     ".pytest_cache",
     ".mypy_cache",
     "node_modules",
+    "__MACOSX",
 ]
 
 FORBIDDEN_FILE_SUFFIXES = [
@@ -56,6 +57,10 @@ FORBIDDEN_FILE_SUFFIXES = [
 
 FORBIDDEN_FILE_NAMES = [
     ".DS_Store",
+]
+
+FORBIDDEN_FILE_PREFIXES = [
+    "._",
 ]
 
 TEXT_FILES_TO_SCAN = [
@@ -451,6 +456,9 @@ def check_no_junk_files(errors: list[str]) -> None:
             continue
 
         if path.name in FORBIDDEN_FILE_NAMES:
+            errors.append(f"Forbidden junk file found: {rel}")
+
+        if any(path.name.startswith(prefix) for prefix in FORBIDDEN_FILE_PREFIXES):
             errors.append(f"Forbidden junk file found: {rel}")
 
         if any(path.name.endswith(suffix) for suffix in FORBIDDEN_FILE_SUFFIXES):

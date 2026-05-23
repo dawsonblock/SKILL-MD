@@ -30,6 +30,7 @@ FORBIDDEN_PATH_PARTS = {
     ".mypy_cache",
     "node_modules",
     ".git",
+    "__MACOSX",
 }
 
 FORBIDDEN_FILE_SUFFIXES = {
@@ -80,6 +81,9 @@ def should_include(rel_path: Path) -> bool:
         return False
 
     if rel_path.name in FORBIDDEN_FILE_NAMES:
+        return False
+
+    if rel_path.name.startswith("._"):
         return False
 
     if any(rel_path.name.endswith(suffix) for suffix in FORBIDDEN_FILE_SUFFIXES):

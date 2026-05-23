@@ -332,6 +332,40 @@ class ValidationFailureModeTests(unittest.TestCase):
             f"Expected one consolidated .mypy_cache error; got: {errors}",
         )
 
+    def test_validate_rejects_macosx_directory(self):
+        junk_dir = ROOT / "__MACOSX"
+        junk_file = junk_dir / "._README.md"
+        errors = []
+        try:
+            junk_dir.mkdir(exist_ok=True)
+            junk_file.write_bytes(b"appledouble")
+            validate.check_no_junk_files(errors)
+        finally:
+            if junk_file.exists():
+                junk_file.unlink()
+            if junk_dir.exists():
+                junk_dir.rmdir()
+
+        self.assertTrue(
+            any("__MACOSX" in err for err in errors),
+            f"Expected __MACOSX junk failure; got: {errors}",
+        )
+
+    def test_validate_rejects_appledouble_file(self):
+        junk = ROOT / "._README.md"
+        errors = []
+        try:
+            junk.write_bytes(b"appledouble")
+            validate.check_no_junk_files(errors)
+        finally:
+            if junk.exists():
+                junk.unlink()
+
+        self.assertTrue(
+            any("._README.md" in err for err in errors),
+            f"Expected AppleDouble junk failure; got: {errors}",
+        )
+
     def test_sync_check_rejects_generated_file_drift(self):
         path = ROOT / "CLAUDE.md"
         original = path.read_text(encoding="utf-8")
@@ -536,6 +570,15 @@ class PackageReleaseTests(unittest.TestCase):
             self.assertFalse(any(".mypy_cache/" in name for name in names), names)
             self.assertFalse(any("node_modules/" in name for name in names), names)
             self.assertFalse(any(name.endswith(".DS_Store") for name in names), names)
+
+    def test_package_release_excludes_macosx_path(self):
+        self.assertIn("__MACOSX", package_release.FORBIDDEN_PATH_PARTS)
+        self.assertFalse(
+            package_release.should_include(Path("__MACOSX") / "._README.md")
+        )
+
+    def test_package_release_excludes_appledouble_file(self):
+        self.assertFalse(package_release.should_include(Path("._README.md")))
 
 
 class CopilotSupportTests(unittest.TestCase):
