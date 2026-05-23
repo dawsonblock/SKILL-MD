@@ -29,7 +29,11 @@ def extract_canonical_body(text: str) -> str:
     if BEGIN not in text or END not in text:
         raise ValueError(f"Missing canonical body markers in {CANONICAL_PATH}")
     start = text.index(BEGIN) + len(BEGIN)
-    end = text.index(END)
+    end = text.find(END, start)
+    if end == -1:
+        raise ValueError(
+            f"Missing canonical body end marker after begin marker in {CANONICAL_PATH}"
+        )
     body = text[start:end].strip("\n")
     if not body:
         raise ValueError("Canonical body is empty")

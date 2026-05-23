@@ -23,3 +23,6 @@ jobs:
 
             - name: Run repository validation
               run: python3 scripts/validate.py
+
+            - name: Run script unit tests
+              run: python3 -m unittest discover -s tests -p "test_*.py"

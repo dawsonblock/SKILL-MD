@@ -6,7 +6,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 import re
-import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 BEGIN = "<!-- BEGIN CANONICAL BODY -->"
@@ -63,7 +62,11 @@ def extract_marked_body(path: Path, text: str) -> str:
     if BEGIN not in text or END not in text:
         raise ValueError(f"Missing canonical body markers in {path.relative_to(ROOT)}")
     start = text.index(BEGIN) + len(BEGIN)
-    end = text.index(END)
+    end = text.find(END, start)
+    if end == -1:
+        raise ValueError(
+            f"Missing canonical body end marker after begin marker in {path.relative_to(ROOT)}"
+        )
     return text[start:end]
 
 
@@ -77,14 +80,21 @@ def check_exists(errors: list[str], rel_path: str) -> Path:
 def check_plugin_metadata(errors: list[str]) -> None:
     plugin_path = check_exists(errors, ".claude-plugin/plugin.json")
     marketplace_path = check_exists(errors, ".claude-plugin/marketplace.json")
-    if errors:
+    if not plugin_path.exists() or not marketplace_path.exists():
         return
 
     try:
         plugin = json.loads(read(plugin_path))
+    except json.JSONDecodeError as exc:
+        errors.append(f"Invalid plugin JSON ({plugin_path.relative_to(ROOT)}): {exc}")
+        return
+
+    try:
         marketplace = json.loads(read(marketplace_path))
     except json.JSONDecodeError as exc:
-        errors.append(f"Invalid plugin JSON: {exc}")
+        errors.append(
+            f"Invalid plugin JSON ({marketplace_path.relative_to(ROOT)}): {exc}"
+        )
         return
 
     required_plugin_keys = ["name", "description", "version", "license", "skills"]
@@ -98,8 +108,26 @@ def check_plugin_metadata(errors: list[str]) -> None:
 
     marketplace_version = marketplace.get("metadata", {}).get("version")
     plugin_version = plugin.get("version")
+    plugin_name = plugin.get("name")
     listed_plugins = marketplace.get("plugins", [])
-    listed_version = listed_plugins[0].get("version") if listed_plugins else None
+    listed_entry = None
+    if isinstance(listed_plugins, list) and plugin_name:
+        listed_entry = next(
+            (
+                item
+                for item in listed_plugins
+                if isinstance(item, dict) and item.get("name") == plugin_name
+            ),
+            None,
+        )
+
+    if listed_entry is None:
+        errors.append(
+            "marketplace.json plugins[] must include an entry matching plugin.json name"
+        )
+        return
+
+    listed_version = listed_entry.get("version")
 
     if not plugin_version or not marketplace_version or not listed_version:
         errors.append("Missing one or more version fields in plugin metadata")
@@ -108,7 +136,12 @@ def check_plugin_metadata(errors: list[str]) -> None:
     if plugin_version != marketplace_version or plugin_version != listed_version:
         errors.append(
             "Version mismatch across plugin metadata files. "
-            f"plugin.json={plugin_version}, marketplace.metadata={marketplace_version}, marketplace.plugins[0]={listed_version}"
+            "plugin.json="
+            f"{plugin_version}, "
+            "marketplace.metadata="
+            f"{marketplace_version}, "
+            "marketplace.plugins[name-match]="
+            f"{listed_version}"
         )
 
 
@@ -141,6 +174,7 @@ def check_guideline_sections(errors: list[str]) -> None:
         "## 2. Simplicity First",
         "## 3. Surgical Changes",
         "## 4. Goal-Driven Execution",
+        "## Output Discipline",
         "**These guidelines are working if:**",
     ]
     for section in required_sections:
