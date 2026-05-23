@@ -52,6 +52,7 @@ TEXT_FILES_TO_SCAN = [
     ROOT / "docs" / "guidelines.md",
     ROOT / "CLAUDE.md",
     ROOT / ".cursor" / "rules" / "karpathy-guidelines.mdc",
+    ROOT / ".github" / "copilot-instructions.md",
     ROOT / "skills" / "karpathy-guidelines" / "SKILL.md",
     ROOT / "README.md",
     ROOT / "README.zh.md",
@@ -63,6 +64,13 @@ TEXT_FILES_TO_SCAN = [
 JSON_TEXT_FILES_TO_SCAN = [
     ROOT / ".claude-plugin" / "plugin.json",
     ROOT / ".claude-plugin" / "marketplace.json",
+]
+
+GENERATED_FILES = [
+    ROOT / "CLAUDE.md",
+    ROOT / ".cursor" / "rules" / "karpathy-guidelines.mdc",
+    ROOT / ".github" / "copilot-instructions.md",
+    ROOT / "skills" / "karpathy-guidelines" / "SKILL.md",
 ]
 
 
@@ -251,11 +259,6 @@ def check_guideline_sections(errors: list[str]) -> None:
 
 def check_canonical_sync(errors: list[str]) -> None:
     canonical_path = check_exists(errors, "docs/guidelines.md")
-    targets = [
-        "CLAUDE.md",
-        ".cursor/rules/karpathy-guidelines.mdc",
-        "skills/karpathy-guidelines/SKILL.md",
-    ]
     if not canonical_path.exists():
         return
 
@@ -266,7 +269,8 @@ def check_canonical_sync(errors: list[str]) -> None:
         errors.append(str(exc))
         return
 
-    for rel in targets:
+    for path in GENERATED_FILES:
+        rel = str(path.relative_to(ROOT))
         path = check_exists(errors, rel)
         if not path.exists():
             continue

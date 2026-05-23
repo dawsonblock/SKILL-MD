@@ -18,6 +18,8 @@
 - Updated `scripts/check.py` to clean existing junk artifacts before validation and before final post-test validation.
 - Added `scripts/package_release.py` for reproducible release archive build + extracted-copy verification.
 - Made `scripts/sync_guidelines.py` create missing target parent directories before writing generated files.
+- Added generated VS Code Copilot instructions target at `.github/copilot-instructions.md` from canonical guidelines.
+- Added optional VS Code reusable prompt files under `.github/prompts` for repair/verification/surgical-edit workflows.
 - Softened remaining clarification wording to avoid unnecessary stops.
 
 ## 1.1.0

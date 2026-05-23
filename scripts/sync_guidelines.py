@@ -22,6 +22,9 @@ TARGETS = {
     / ".cursor"
     / "rules"
     / "karpathy-guidelines.mdc",
+    ".github/copilot-instructions.md": ROOT
+    / ".github"
+    / "copilot-instructions.md",
     "skills/karpathy-guidelines/SKILL.md": ROOT
     / "skills"
     / "karpathy-guidelines"
@@ -84,10 +87,21 @@ def render_skill(body: str) -> str:
     )
 
 
+def render_copilot_instructions(body: str) -> str:
+    return (
+        "# Coding Agent Guidelines\n"
+        "Use these rules when writing, reviewing, repairing, or refactoring code in this repository.\n"
+        f"{BEGIN}\n"
+        f"{body}"
+        f"{END}\n"
+    )
+
+
 def render_targets(body: str) -> dict[str, str]:
     return {
         "CLAUDE.md": render_claude(body),
         ".cursor/rules/karpathy-guidelines.mdc": render_mdc(body),
+        ".github/copilot-instructions.md": render_copilot_instructions(body),
         "skills/karpathy-guidelines/SKILL.md": render_skill(body),
     }
 

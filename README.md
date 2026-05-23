@@ -87,7 +87,32 @@ Generated targets:
 
 - [CLAUDE.md](CLAUDE.md)
 - [.cursor/rules/karpathy-guidelines.mdc](.cursor/rules/karpathy-guidelines.mdc)
+- [.github/copilot-instructions.md](.github/copilot-instructions.md)
 - [skills/karpathy-guidelines/SKILL.md](skills/karpathy-guidelines/SKILL.md)
+
+## Using with VS Code Copilot
+
+This repository includes Copilot custom instructions at:
+
+```text
+.github/copilot-instructions.md
+```
+
+VS Code and GitHub Copilot use this file as repository-level guidance for chat and coding tasks. It is generated from [docs/guidelines.md](docs/guidelines.md); do not edit it directly.
+
+After changing the canonical guideline file, run:
+
+```bash
+python3 scripts/check.py
+```
+
+Optional reusable prompt files live in:
+
+```text
+.github/prompts/repo-repair.prompt.md
+.github/prompts/verify-change.prompt.md
+.github/prompts/surgical-edit.prompt.md
+```
 
 ## Development
 
@@ -140,6 +165,7 @@ The generated files are:
 
 - `CLAUDE.md`
 - `.cursor/rules/karpathy-guidelines.mdc`
+- `.github/copilot-instructions.md`
 - `skills/karpathy-guidelines/SKILL.md`
 
 ## What Good Looks Like
@@ -176,6 +202,11 @@ For concrete before/after examples, see [EXAMPLES.md](EXAMPLES.md).
 │   ├── marketplace.json
 │   └── plugin.json
 └── .github/
+  ├── copilot-instructions.md
+  ├── prompts/
+  │   ├── repo-repair.prompt.md
+  │   ├── verify-change.prompt.md
+  │   └── surgical-edit.prompt.md
     └── workflows/
         └── validate.yml
 ```

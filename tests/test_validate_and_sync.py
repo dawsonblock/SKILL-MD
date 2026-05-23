@@ -328,6 +328,9 @@ class SyncResilienceTests(unittest.TestCase):
                     / ".cursor"
                     / "rules"
                     / "karpathy-guidelines.mdc",
+                    ".github/copilot-instructions.md": tmp_root
+                    / ".github"
+                    / "copilot-instructions.md",
                     "skills/karpathy-guidelines/SKILL.md": tmp_root
                     / "skills"
                     / "karpathy-guidelines"
@@ -431,6 +434,95 @@ class PackageReleaseTests(unittest.TestCase):
             self.assertFalse(any(".mypy_cache/" in name for name in names), names)
             self.assertFalse(any("node_modules/" in name for name in names), names)
             self.assertFalse(any(name.endswith(".DS_Store") for name in names), names)
+
+
+class CopilotSupportTests(unittest.TestCase):
+    def test_copilot_instructions_generated(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_root = Path(tmp_dir)
+            canonical = tmp_root / "docs" / "guidelines.md"
+            canonical.parent.mkdir(parents=True, exist_ok=True)
+            canonical.write_text(
+                "# Guidelines\n\n"
+                "<!-- BEGIN CANONICAL BODY -->\n"
+                "## Section\n"
+                "Body\n"
+                "<!-- END CANONICAL BODY -->\n",
+                encoding="utf-8",
+            )
+
+            original_root = sync.ROOT
+            original_canonical = sync.CANONICAL_PATH
+            original_targets = sync.TARGETS
+            original_argv = sync.sys.argv
+            try:
+                sync.ROOT = tmp_root
+                sync.CANONICAL_PATH = canonical
+                sync.TARGETS = {
+                    "CLAUDE.md": tmp_root / "CLAUDE.md",
+                    ".cursor/rules/karpathy-guidelines.mdc": tmp_root
+                    / ".cursor"
+                    / "rules"
+                    / "karpathy-guidelines.mdc",
+                    ".github/copilot-instructions.md": tmp_root
+                    / ".github"
+                    / "copilot-instructions.md",
+                    "skills/karpathy-guidelines/SKILL.md": tmp_root
+                    / "skills"
+                    / "karpathy-guidelines"
+                    / "SKILL.md",
+                }
+                sync.sys.argv = ["sync_guidelines.py"]
+
+                result = sync.main()
+            finally:
+                sync.ROOT = original_root
+                sync.CANONICAL_PATH = original_canonical
+                sync.TARGETS = original_targets
+                sync.sys.argv = original_argv
+
+            self.assertEqual(result, 0)
+            generated = tmp_root / ".github" / "copilot-instructions.md"
+            self.assertTrue(generated.exists())
+            content = generated.read_text(encoding="utf-8")
+            self.assertIn("# Coding Agent Guidelines", content)
+            self.assertIn(sync.BEGIN, content)
+            self.assertIn(sync.END, content)
+
+    def test_copilot_instructions_sync_drift_detected(self):
+        path = ROOT / ".github" / "copilot-instructions.md"
+        original = path.read_text(encoding="utf-8")
+        errors = []
+        try:
+            drifted = original.replace("## 1. Think Before Coding", "## 1. Think Before Coding (DRIFT)", 1)
+            path.write_text(drifted, encoding="utf-8")
+            validate.check_canonical_sync(errors)
+        finally:
+            path.write_text(original, encoding="utf-8")
+
+        self.assertTrue(
+            any(".github/copilot-instructions.md" in err for err in errors),
+            f"Expected copilot drift failure; got: {errors}",
+        )
+
+    def test_copilot_instructions_scanned_for_forbidden_phrases(self):
+        path = ROOT / ".github" / "copilot-instructions.md"
+        original = path.read_text(encoding="utf-8")
+        errors = []
+        try:
+            path.write_text(original + "\nState your assumptions explicitly. If uncertain, ask.\n", encoding="utf-8")
+            validate.check_forbidden_phrases(errors)
+        finally:
+            path.write_text(original, encoding="utf-8")
+
+        self.assertTrue(
+            any(
+                ".github/copilot-instructions.md" in err
+                and "State your assumptions explicitly. If uncertain, ask." in err
+                for err in errors
+            ),
+            f"Expected copilot forbidden-phrase failure; got: {errors}",
+        )
 
 
 if __name__ == "__main__":
