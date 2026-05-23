@@ -15,6 +15,9 @@
 - Re-runs validation after unit tests in CI.
 - Documented bytecode-safe local validation commands.
 - Added `scripts/check.py` one-command local verification runner.
+- Updated `scripts/check.py` to clean existing junk artifacts before validation and before final post-test validation.
+- Added `scripts/package_release.py` for reproducible release archive build + extracted-copy verification.
+- Made `scripts/sync_guidelines.py` create missing target parent directories before writing generated files.
 - Softened remaining clarification wording to avoid unnecessary stops.
 
 ## 1.1.0

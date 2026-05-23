@@ -198,6 +198,14 @@ PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate.py
 python3 scripts/check.py
 ```
 
+也可以一键构建并验证发布压缩包：
+
+```bash
+python3 scripts/package_release.py
+```
+
+该命令会生成 `dist/SKILL-MD-main-fixed.zip`，解压到临时目录，并在解压副本中再次运行 `scripts/check.py`。
+
 提交前请先运行校验：
 
 ```bash

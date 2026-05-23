@@ -118,6 +118,14 @@ Or run the full sequence with one command:
 python3 scripts/check.py
 ```
 
+Build and verify a release archive end-to-end:
+
+```bash
+python3 scripts/package_release.py
+```
+
+This creates `dist/SKILL-MD-main-fixed.zip`, extracts it to a temporary directory, and reruns `scripts/check.py` against the extracted copy.
+
 Run validation before committing:
 
 ```bash
@@ -158,6 +166,7 @@ For concrete before/after examples, see [EXAMPLES.md](EXAMPLES.md).
 │   └── guidelines.md
 ├── scripts/
 │   ├── check.py
+│   ├── package_release.py
 │   ├── sync_guidelines.py
 │   └── validate.py
 ├── skills/

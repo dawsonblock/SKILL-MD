@@ -106,6 +106,7 @@ def main() -> int:
         if current != content:
             changed.append(path)
             if not check_only:
+                path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text(content, encoding="utf-8")
 
     if changed:

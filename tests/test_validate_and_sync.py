@@ -1,5 +1,6 @@
 import importlib.util
 import re
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -17,6 +18,10 @@ def load_module(path: Path, name: str):
 
 validate = load_module(ROOT / "scripts" / "validate.py", "validate_module")
 sync = load_module(ROOT / "scripts" / "sync_guidelines.py", "sync_module")
+check = load_module(ROOT / "scripts" / "check.py", "check_module")
+package_release = load_module(
+    ROOT / "scripts" / "package_release.py", "package_release_module"
+)
 
 
 class MarkerExtractionTests(unittest.TestCase):
@@ -293,6 +298,139 @@ class ValidationFailureModeTests(unittest.TestCase):
             ),
             f"Expected README badge drift failure; got: {errors}",
         )
+
+
+class SyncResilienceTests(unittest.TestCase):
+    def test_sync_main_creates_missing_parent_directories(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_root = Path(tmp_dir)
+            canonical = tmp_root / "docs" / "guidelines.md"
+            canonical.parent.mkdir(parents=True, exist_ok=True)
+            canonical.write_text(
+                "# Guidelines\n\n"
+                "<!-- BEGIN CANONICAL BODY -->\n"
+                "## Section\n"
+                "Body\n"
+                "<!-- END CANONICAL BODY -->\n",
+                encoding="utf-8",
+            )
+
+            original_root = sync.ROOT
+            original_canonical = sync.CANONICAL_PATH
+            original_targets = sync.TARGETS
+            original_argv = sync.sys.argv
+            try:
+                sync.ROOT = tmp_root
+                sync.CANONICAL_PATH = canonical
+                sync.TARGETS = {
+                    "CLAUDE.md": tmp_root / "CLAUDE.md",
+                    ".cursor/rules/karpathy-guidelines.mdc": tmp_root
+                    / ".cursor"
+                    / "rules"
+                    / "karpathy-guidelines.mdc",
+                    "skills/karpathy-guidelines/SKILL.md": tmp_root
+                    / "skills"
+                    / "karpathy-guidelines"
+                    / "SKILL.md",
+                }
+                sync.sys.argv = ["sync_guidelines.py"]
+
+                result = sync.main()
+            finally:
+                sync.ROOT = original_root
+                sync.CANONICAL_PATH = original_canonical
+                sync.TARGETS = original_targets
+                sync.sys.argv = original_argv
+
+            self.assertEqual(result, 0)
+            self.assertTrue((tmp_root / ".cursor" / "rules").exists())
+            self.assertTrue((tmp_root / "skills" / "karpathy-guidelines").exists())
+
+
+class CheckScriptTests(unittest.TestCase):
+    def test_check_script_cleans_junk_before_commands(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_root = Path(tmp_dir)
+            (tmp_root / "nested" / "__pycache__").mkdir(parents=True, exist_ok=True)
+            (tmp_root / "nested" / "__pycache__" / "x.pyc").write_bytes(b"cache")
+            (tmp_root / ".pytest_cache").mkdir(parents=True, exist_ok=True)
+            (tmp_root / ".pytest_cache" / "state").write_text("1", encoding="utf-8")
+            (tmp_root / ".mypy_cache").mkdir(parents=True, exist_ok=True)
+            (tmp_root / ".mypy_cache" / "meta").write_text("{}", encoding="utf-8")
+            (tmp_root / ".DS_Store").write_text("junk", encoding="utf-8")
+
+            commands_seen = []
+
+            original_root = check.ROOT
+            original_run = check.subprocess.run
+            try:
+                check.ROOT = tmp_root
+
+                def fake_run(cmd, cwd, env):
+                    commands_seen.append((cmd, cwd, env.get("PYTHONDONTWRITEBYTECODE")))
+
+                    class Result:
+                        returncode = 0
+
+                    return Result()
+
+                check.subprocess.run = fake_run
+                result = check.main()
+            finally:
+                check.ROOT = original_root
+                check.subprocess.run = original_run
+
+            self.assertEqual(result, 0)
+            self.assertEqual(len(commands_seen), 4)
+            self.assertFalse(any(tmp_root.rglob("__pycache__")))
+            self.assertFalse(any(tmp_root.rglob("*.pyc")))
+            self.assertFalse((tmp_root / ".pytest_cache").exists())
+            self.assertFalse((tmp_root / ".mypy_cache").exists())
+            self.assertFalse((tmp_root / ".DS_Store").exists())
+
+
+class PackageReleaseTests(unittest.TestCase):
+    def test_create_archive_excludes_junk_entries(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_root = Path(tmp_dir) / "repo"
+            tmp_root.mkdir(parents=True, exist_ok=True)
+            dist_dir = tmp_root / "dist"
+            dist_dir.mkdir(parents=True, exist_ok=True)
+
+            (tmp_root / "README.md").write_text("ok", encoding="utf-8")
+            (tmp_root / "scripts").mkdir(parents=True, exist_ok=True)
+            (tmp_root / "scripts" / "check.py").write_text(
+                "print('ok')", encoding="utf-8"
+            )
+            (tmp_root / "nested" / "__pycache__").mkdir(parents=True, exist_ok=True)
+            (tmp_root / "nested" / "__pycache__" / "x.pyc").write_bytes(b"cache")
+            (tmp_root / ".pytest_cache").mkdir(parents=True, exist_ok=True)
+            (tmp_root / ".pytest_cache" / "state").write_text("x", encoding="utf-8")
+            (tmp_root / "node_modules").mkdir(parents=True, exist_ok=True)
+            (tmp_root / "node_modules" / "lib.js").write_text("x", encoding="utf-8")
+            (tmp_root / ".DS_Store").write_text("junk", encoding="utf-8")
+
+            archive_path = dist_dir / "out.zip"
+            count = package_release.create_archive(tmp_root, archive_path)
+
+            self.assertGreaterEqual(count, 2)
+            self.assertTrue(archive_path.exists())
+
+            import zipfile
+
+            with zipfile.ZipFile(archive_path, "r") as archive:
+                names = archive.namelist()
+
+            self.assertTrue(
+                any(name.endswith("README.md") for name in names),
+                f"Expected README in archive; got {names}",
+            )
+            self.assertFalse(any("__pycache__/" in name for name in names), names)
+            self.assertFalse(any(name.endswith(".pyc") for name in names), names)
+            self.assertFalse(any(".pytest_cache/" in name for name in names), names)
+            self.assertFalse(any(".mypy_cache/" in name for name in names), names)
+            self.assertFalse(any("node_modules/" in name for name in names), names)
+            self.assertFalse(any(name.endswith(".DS_Store") for name in names), names)
 
 
 if __name__ == "__main__":
