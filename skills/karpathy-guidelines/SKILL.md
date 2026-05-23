@@ -1,6 +1,6 @@
 ---
 name: karpathy-guidelines
-description: Behavioral guidelines to reduce common LLM coding mistakes. Use when writing, reviewing, or refactoring code to avoid overcomplication, make surgical changes, surface assumptions, and define verifiable success criteria.
+description: Karpathy-inspired behavioral guidelines for coding agents: clarify assumptions, keep changes simple, edit surgically, and verify before claiming completion.
 license: MIT
 ---
 
@@ -163,6 +163,16 @@ For broken ZIPs, inherited codebases, or generated projects.
 - Fix blockers first.
 - Avoid rewrites.
 - End with exact remaining issues.
+
+## Output Discipline
+
+When reporting results:
+
+- List changed files.
+- Explain why each file changed.
+- List verification commands and results.
+- Say what remains unverified.
+- Do not bury failures under optimistic language.
 
 ---
 

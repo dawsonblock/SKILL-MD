@@ -162,6 +162,16 @@ For broken ZIPs, inherited codebases, or generated projects.
 - Avoid rewrites.
 - End with exact remaining issues.
 
+## Output Discipline
+
+When reporting results:
+
+- List changed files.
+- Explain why each file changed.
+- List verification commands and results.
+- Say what remains unverified.
+- Do not bury failures under optimistic language.
+
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.

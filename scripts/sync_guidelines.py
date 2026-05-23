@@ -49,7 +49,7 @@ def render_claude(body: str) -> str:
 def render_mdc(body: str) -> str:
     return (
         "---\n"
-        "description: Behavioral guidelines to reduce common LLM coding mistakes. Use when writing, reviewing, or refactoring code to avoid overcomplication, make surgical changes, surface assumptions, and define verifiable success criteria.\n"
+        "description: Karpathy-inspired behavioral guidelines for coding agents: clarify assumptions, keep changes simple, edit surgically, and verify before claiming completion.\n"
         "alwaysApply: true\n"
         "---\n\n"
         "# Karpathy behavioral guidelines\n\n"
@@ -64,7 +64,7 @@ def render_skill(body: str) -> str:
     return (
         "---\n"
         "name: karpathy-guidelines\n"
-        "description: Behavioral guidelines to reduce common LLM coding mistakes. Use when writing, reviewing, or refactoring code to avoid overcomplication, make surgical changes, surface assumptions, and define verifiable success criteria.\n"
+        "description: Karpathy-inspired behavioral guidelines for coding agents: clarify assumptions, keep changes simple, edit surgically, and verify before claiming completion.\n"
         "license: MIT\n"
         "---\n\n"
         "# Karpathy Guidelines\n\n"

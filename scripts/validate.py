@@ -14,7 +14,7 @@ END = "<!-- END CANONICAL BODY -->"
 
 REQUIRED_CANONICAL_PHRASES = [
     "State assumptions explicitly when they affect correctness",
-    "Infer from code, tests, docs",
+    "Infer from code, tests, docs, and user context when the evidence is strong",
     "Ask only when missing information blocks a correct implementation",
     "No broad speculative error handling",
     "Handle realistic failure modes shown by the code path",
@@ -22,6 +22,7 @@ REQUIRED_CANONICAL_PHRASES = [
     "Repo Repair Protocol",
     "Claim Boundaries",
     "Task Modes",
+    "Output Discipline",
 ]
 
 FORBIDDEN_PHRASES = [
@@ -235,6 +236,33 @@ def check_examples(errors: list[str]) -> None:
                 f"Malformed logging example pattern found in EXAMPLES.md: {pattern}"
             )
 
+    required_example_phrases = [
+        "Add basic in-memory rate limiting for one endpoint",
+        "Extract rate limiting into middleware",
+        "test_sort_users_by_score_ties_are_deterministic",
+        'assert [u["name"] for u in result] == ["Alice", "Charlie", "Bob"]',
+        "logger.exception(f'Upload error: {file_path}')",
+        'print(f"Error: {e}")',
+    ]
+    for phrase in required_example_phrases:
+        if phrase not in text:
+            errors.append(f"EXAMPLES.md missing required corrected content: {phrase}")
+
+
+def check_readme_disclaimers(errors: list[str]) -> None:
+    readme = ROOT / "README.md"
+    readme_zh = ROOT / "README.zh.md"
+
+    if readme.exists():
+        text = read(readme)
+        if "Not affiliated with or endorsed by Andrej Karpathy" not in text:
+            errors.append("README.md missing non-affiliation disclaimer")
+
+    if readme_zh.exists():
+        text = read(readme_zh)
+        if "与 Andrej Karpathy 无关" not in text and "未经其认可" not in text:
+            errors.append("README.zh.md missing non-affiliation disclaimer")
+
 
 def main() -> int:
     errors: list[str] = []
@@ -246,6 +274,7 @@ def main() -> int:
     check_canonical_sync(errors)
     check_forbidden_wording(errors)
     check_forbidden_phrases(errors)
+    check_readme_disclaimers(errors)
     check_examples(errors)
 
     if errors:
