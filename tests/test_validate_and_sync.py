@@ -228,6 +228,30 @@ class ValidationFailureModeTests(unittest.TestCase):
             f"Expected junk file failure; got: {errors}",
         )
 
+    def test_validate_reports_forbidden_junk_directory_once(self):
+        junk_file = ROOT / ".mypy_cache" / "nested" / "artifact.meta.json"
+        errors = []
+        try:
+            junk_file.parent.mkdir(parents=True, exist_ok=True)
+            junk_file.write_text("{}", encoding="utf-8")
+            validate.check_no_junk_files(errors)
+        finally:
+            if junk_file.exists():
+                junk_file.unlink()
+            nested = junk_file.parent
+            if nested.exists() and not any(nested.iterdir()):
+                nested.rmdir()
+            cache_root = ROOT / ".mypy_cache"
+            if cache_root.exists() and not any(cache_root.iterdir()):
+                cache_root.rmdir()
+
+        hits = [err for err in errors if "Forbidden junk path found: .mypy_cache" in err]
+        self.assertEqual(
+            len(hits),
+            1,
+            f"Expected one consolidated .mypy_cache error; got: {errors}",
+        )
+
     def test_sync_check_rejects_generated_file_drift(self):
         path = ROOT / "CLAUDE.md"
         original = path.read_text(encoding="utf-8")

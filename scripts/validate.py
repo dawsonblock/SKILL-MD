@@ -357,11 +357,21 @@ def check_readme_disclaimers(errors: list[str]) -> None:
 
 
 def check_no_junk_files(errors: list[str]) -> None:
+    reported_junk_dirs: set[Path] = set()
+
     for path in ROOT.rglob("*"):
         rel = path.relative_to(ROOT)
 
-        if any(part in rel.parts for part in FORBIDDEN_PATH_PARTS):
-            errors.append(f"Forbidden junk path found: {rel}")
+        junk_part = next(
+            (part for part in rel.parts if part in FORBIDDEN_PATH_PARTS),
+            None,
+        )
+        if junk_part is not None:
+            idx = rel.parts.index(junk_part)
+            junk_rel = Path(*rel.parts[: idx + 1])
+            if junk_rel not in reported_junk_dirs:
+                errors.append(f"Forbidden junk path found: {junk_rel}")
+                reported_junk_dirs.add(junk_rel)
             continue
 
         if path.is_dir():
