@@ -30,6 +30,7 @@ REQUIRED_README_PHRASES = [
 
 REQUIRED_ZH_README_PHRASES = [
     "只有在正确性受阻时才提出必要澄清问题",
+    "如果检查可用证据后仍不清楚，应指出阻塞点并询问。",
 ]
 
 FORBIDDEN_PHRASES = [
@@ -39,6 +40,7 @@ FORBIDDEN_PHRASES = [
     "查看我的新项目",
     "如果不确定，询问而不是猜测",
     "不要为不可能发生的场景做错误处理",
+    "困惑时停下来",
 ]
 
 FORBIDDEN_PATH_PARTS = [
@@ -387,6 +389,18 @@ def validate_readme_zh_polished_wording() -> None:
         raise SystemExit(f"README.zh.md missing polished wording: {missing}")
 
 
+def validate_no_committed_release_artifacts() -> None:
+    dist = ROOT / "dist"
+    if not dist.exists():
+        return
+    release_artifacts = list(dist.glob("*.zip"))
+    if release_artifacts:
+        found = ", ".join(str(path.relative_to(ROOT)) for path in release_artifacts)
+        raise SystemExit(
+            "Committed release artifacts are not allowed in source tree: " f"{found}"
+        )
+
+
 def check_readme_version_badge(errors: list[str]) -> None:
     readme_path = ROOT / "README.md"
     if not readme_path.exists():
@@ -462,6 +476,10 @@ def main() -> int:
         errors.append(str(exc))
     try:
         validate_readme_zh_polished_wording()
+    except SystemExit as exc:
+        errors.append(str(exc))
+    try:
+        validate_no_committed_release_artifacts()
     except SystemExit as exc:
         errors.append(str(exc))
     check_examples(errors)

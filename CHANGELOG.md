@@ -2,6 +2,11 @@
 
 ## 1.1.1
 
+- Removed generated `dist/` release ZIP from the source archive.
+- Added `.gitignore` to exclude release artifacts and cache files.
+- Added validation against committed release ZIP artifacts.
+- Tightened Chinese README clarification wording.
+- Added tests for committed release artifacts and Chinese wording regression.
 - Tightened README wording around clarification behavior.
 - Added validation for README clarification wording.
 - Reduced noisy test output.

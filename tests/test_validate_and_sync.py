@@ -190,6 +190,44 @@ class ValidationFailureModeTests(unittest.TestCase):
         finally:
             path.write_text(original, encoding="utf-8")
 
+    def test_validate_rejects_committed_release_zip_in_dist(self):
+        dist = ROOT / "dist"
+        artifact = dist / "SKILL-MD-main-fixed.zip"
+        original_exists = artifact.exists()
+        original_bytes = artifact.read_bytes() if original_exists else None
+        try:
+            dist.mkdir(exist_ok=True)
+            artifact.write_bytes(b"fake zip content")
+            with self.assertRaises(SystemExit):
+                validate.validate_no_committed_release_artifacts()
+        finally:
+            if original_exists and original_bytes is not None:
+                artifact.write_bytes(original_bytes)
+            elif artifact.exists():
+                artifact.unlink()
+            try:
+                dist.rmdir()
+            except OSError:
+                pass
+
+    def test_validate_rejects_old_chinese_confusion_wording(self):
+        path = ROOT / "README.zh.md"
+        original = path.read_text(encoding="utf-8")
+        try:
+            broken = original.replace(
+                "如果检查可用证据后仍不清楚，应指出阻塞点并询问。",
+                "困惑时停下来 — 指出不清楚的地方并要求澄清",
+            )
+            path.write_text(broken, encoding="utf-8")
+            errors = []
+            validate.check_forbidden_phrases(errors)
+            self.assertTrue(
+                any("困惑时停下来" in err for err in errors),
+                f"Expected old confusion wording failure; got: {errors}",
+            )
+        finally:
+            path.write_text(original, encoding="utf-8")
+
     def test_validate_rejects_stale_chinese_assumption_wording(self):
         target = ROOT / "README.zh.md"
         original = target.read_text(encoding="utf-8")

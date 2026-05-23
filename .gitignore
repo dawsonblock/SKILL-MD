@@ -1,0 +1,23 @@
+# Release/build artifacts
+dist/
+
+# Python cache/test artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# OS/editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Temporary extraction/build folders
+tmp/
+temp/
+build/

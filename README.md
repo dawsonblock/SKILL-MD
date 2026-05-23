@@ -187,6 +187,26 @@ The release package is written to:
 
 The package script runs validation, removes junk/cache files, creates the archive, extracts it into a temporary directory, and verifies the extracted copy.
 
+## Source archive vs release archive
+
+Do not commit generated release archives under `dist/`.
+
+Source archives should contain only repository source files. Release archives are generated with:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/package_release.py
+```
+
+The generated release ZIP is written to:
+
+`dist/SKILL-MD-main-fixed.zip`
+
+Before packaging a source archive, remove generated release artifacts:
+
+```bash
+rm -rf dist
+```
+
 Run validation before committing:
 
 ```bash
