@@ -28,6 +28,7 @@ FORBIDDEN_PHRASES = [
     "State your assumptions explicitly. If uncertain, ask.",
     "No error handling for impossible scenarios.",
     "derived from Andrej Karpathy's observations",
+    "查看我的新项目",
 ]
 
 TEXT_FILES_TO_SCAN = [

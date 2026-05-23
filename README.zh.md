@@ -2,11 +2,7 @@
 
 > 本项目与 Andrej Karpathy 无关，也未得到其认可。
 
-> 查看我的新项目 [Multica](https://github.com/multica-ai/multica) —— 一个用于运行和管理编码智能体的开源平台，支持可复用的技能。
->
-> 在 X 上关注我：[https://x.com/jiayuan_jy](https://x.com/jiayuan_jy)
-
-一个面向编码代理的小型指令包，灵感来自 Andrej Karpathy 对 LLM 编码陷阱的公开观察。本项目与 Andrej Karpathy 无关，也未得到其认可。
+一个面向编码代理的小型指令包，灵感来自 Andrej Karpathy 对 LLM 编码陷阱的公开观察。
 
 [English](./README.md) | 简体中文
 
@@ -207,4 +203,4 @@ python3 scripts/validate.py
 
 ## 许可
 
-MIT
+MIT —— 参见 [LICENSE](LICENSE)。

@@ -85,5 +85,68 @@ class PluginMetadataValidationTests(unittest.TestCase):
         )
 
 
+class ChineseForbiddenPhraseTests(unittest.TestCase):
+    def test_check_forbidden_phrases_catches_chinese_promo_in_readme_zh(self):
+        errors = []
+        original_read = validate.read
+
+        def fake_read(path):
+            if path.name == "README.zh.md":
+                return "# 受 Karpathy 启发的编码代理指南\n\n查看我的新项目 SomeThing\n"
+            return original_read(path)
+
+        try:
+            validate.read = fake_read
+            validate.check_forbidden_phrases(errors)
+        finally:
+            validate.read = original_read
+
+        self.assertTrue(
+            any("README.zh.md" in err and "查看我的新项目" in err for err in errors),
+            f"Expected forbidden phrase error; got: {errors}",
+        )
+
+    def test_check_readme_disclaimers_passes_with_correct_chinese_phrase(self):
+        errors = []
+        original_read = validate.read
+
+        def fake_read(path):
+            if path.name == "README.md":
+                return "Not affiliated with or endorsed by Andrej Karpathy."
+            if path.name == "README.zh.md":
+                return "本项目与 Andrej Karpathy 无关，也未得到其认可。"
+            return original_read(path)
+
+        try:
+            validate.read = fake_read
+            validate.check_readme_disclaimers(errors)
+        finally:
+            validate.read = original_read
+
+        self.assertEqual(errors, [], f"Expected no errors; got: {errors}")
+
+    def test_check_readme_disclaimers_fails_when_chinese_disclaimer_missing(self):
+        errors = []
+        original_read = validate.read
+
+        def fake_read(path):
+            if path.name == "README.md":
+                return "Not affiliated with or endorsed by Andrej Karpathy."
+            if path.name == "README.zh.md":
+                return "# 受 Karpathy 启发的编码代理指南\n"
+            return original_read(path)
+
+        try:
+            validate.read = fake_read
+            validate.check_readme_disclaimers(errors)
+        finally:
+            validate.read = original_read
+
+        self.assertTrue(
+            any("README.zh.md" in err for err in errors),
+            f"Expected missing-disclaimer error; got: {errors}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
