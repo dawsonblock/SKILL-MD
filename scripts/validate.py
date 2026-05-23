@@ -12,6 +12,41 @@ ROOT = Path(__file__).resolve().parents[1]
 BEGIN = "<!-- BEGIN CANONICAL BODY -->"
 END = "<!-- END CANONICAL BODY -->"
 
+REQUIRED_CANONICAL_PHRASES = [
+    "State assumptions explicitly when they affect correctness",
+    "Infer from code, tests, docs",
+    "Ask only when missing information blocks a correct implementation",
+    "No broad speculative error handling",
+    "Handle realistic failure modes shown by the code path",
+    "Verification Discipline",
+    "Repo Repair Protocol",
+    "Claim Boundaries",
+    "Task Modes",
+]
+
+FORBIDDEN_PHRASES = [
+    "State your assumptions explicitly. If uncertain, ask.",
+    "No error handling for impossible scenarios.",
+    "derived from Andrej Karpathy's observations",
+]
+
+TEXT_FILES_TO_SCAN = [
+    ROOT / "docs" / "guidelines.md",
+    ROOT / "CLAUDE.md",
+    ROOT / ".cursor" / "rules" / "karpathy-guidelines.mdc",
+    ROOT / "skills" / "karpathy-guidelines" / "SKILL.md",
+    ROOT / "README.md",
+    ROOT / "README.zh.md",
+    ROOT / "CURSOR.md",
+    ROOT / "EXAMPLES.md",
+    ROOT / "CHANGELOG.md",
+]
+
+JSON_TEXT_FILES_TO_SCAN = [
+    ROOT / ".claude-plugin" / "plugin.json",
+    ROOT / ".claude-plugin" / "marketplace.json",
+]
+
 
 def normalize(text: str) -> str:
     text = text.replace("\r\n", "\n").replace("\r", "\n")
@@ -111,6 +146,10 @@ def check_guideline_sections(errors: list[str]) -> None:
         if section not in text:
             errors.append(f"Canonical guidelines missing required section: {section}")
 
+    for phrase in REQUIRED_CANONICAL_PHRASES:
+        if phrase not in text:
+            errors.append(f"Canonical guidelines missing required phrase: {phrase}")
+
 
 def check_canonical_sync(errors: list[str]) -> None:
     canonical_path = check_exists(errors, "docs/guidelines.md")
@@ -139,12 +178,31 @@ def check_canonical_sync(errors: list[str]) -> None:
             errors.append(str(exc))
             continue
         if body != canonical_body:
-            errors.append(f"Guideline body drift detected in {rel}. Run: python3 scripts/sync_guidelines.py")
+            errors.append(
+                f"Guideline body drift detected in {rel}. Run: python3 scripts/sync_guidelines.py"
+            )
 
 
 def check_content_files(errors: list[str]) -> None:
-    for rel in ["docs/guidelines.md", "README.zh.md", "CURSOR.md", "EXAMPLES.md"]:
-        check_exists(errors, rel)
+    for path in TEXT_FILES_TO_SCAN:
+        if not path.exists():
+            errors.append(f"Missing required file: {path.relative_to(ROOT)}")
+    for path in JSON_TEXT_FILES_TO_SCAN:
+        if not path.exists():
+            errors.append(f"Missing required file: {path.relative_to(ROOT)}")
+
+
+def check_forbidden_phrases(errors: list[str]) -> None:
+    scan_paths = TEXT_FILES_TO_SCAN + JSON_TEXT_FILES_TO_SCAN
+    for path in scan_paths:
+        if not path.exists():
+            continue
+        text = read(path)
+        for phrase in FORBIDDEN_PHRASES:
+            if phrase in text:
+                errors.append(
+                    f"Forbidden phrase found in {path.relative_to(ROOT)}: {phrase}"
+                )
 
 
 def check_forbidden_wording(errors: list[str]) -> None:
@@ -173,7 +231,9 @@ def check_examples(errors: list[str]) -> None:
     ]
     for pattern in forbidden_patterns:
         if pattern in text:
-            errors.append(f"Malformed logging example pattern found in EXAMPLES.md: {pattern}")
+            errors.append(
+                f"Malformed logging example pattern found in EXAMPLES.md: {pattern}"
+            )
 
 
 def main() -> int:
@@ -185,6 +245,7 @@ def main() -> int:
     check_guideline_sections(errors)
     check_canonical_sync(errors)
     check_forbidden_wording(errors)
+    check_forbidden_phrases(errors)
     check_examples(errors)
 
     if errors:

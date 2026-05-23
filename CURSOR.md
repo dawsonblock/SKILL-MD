@@ -37,3 +37,23 @@ When you change the four principles:
 	```bash
 	python3 scripts/validate.py
 	```
+
+## Maintenance
+
+Do not edit the generated guideline files directly unless you are making tool-specific wrapper changes.
+
+Canonical source:
+- `docs/guidelines.md`
+
+Generated files:
+- `CLAUDE.md`
+- `.cursor/rules/karpathy-guidelines.mdc`
+- `skills/karpathy-guidelines/SKILL.md`
+
+After editing the canonical file, run:
+
+```bash
+python3 scripts/sync_guidelines.py
+python3 scripts/sync_guidelines.py --check
+python3 scripts/validate.py
+```

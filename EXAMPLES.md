@@ -428,12 +428,12 @@ What's the specific auth issue you're seeing?
 ```
 Plan for rate limiting:
 
-1. Add basic in-memory rate limiting (single endpoint)
+1. Add basic in-memory rate limiting for one endpoint
    Verify: 
    - Test: 100 requests → first 10 succeed, rest get 429
    - Manual: curl endpoint 11 times, see rate limit error
 
-2. Extract to middleware (apply to all endpoints)
+2. Extract rate limiting into middleware
    Verify:
    - Test: Rate limits apply to /users and /posts
    - Existing endpoint tests still pass
@@ -468,28 +468,21 @@ def sort_scores(scores):
 
 ```python
 # 1. First, write a test that reproduces the issue
-def test_sort_with_duplicate_scores():
-    """Test sorting when multiple items have same score."""
-    scores = [
-        {'name': 'Alice', 'score': 100},
-        {'name': 'Bob', 'score': 100},
-        {'name': 'Charlie', 'score': 90},
+def test_sort_users_by_score_ties_are_deterministic():
+    users = [
+        {"name": "Charlie", "score": 10},
+        {"name": "Alice", "score": 10},
+        {"name": "Bob", "score": 5},
     ]
-    
-    result = sort_scores(scores)
-    
-    # The bug: order is non-deterministic for duplicates
-    # Run this test multiple times, it should be consistent
-    assert result[0]['score'] == 100
-    assert result[1]['score'] == 100
-    assert result[2]['score'] == 90
+
+    result = sort_users_by_score(users)
+    assert [u["name"] for u in result] == ["Alice", "Charlie", "Bob"]
 
 # Verify: Run test 10 times → fails with inconsistent ordering
 
 # 2. Now fix with stable sort
-def sort_scores(scores):
-    """Sort by score descending, then name ascending for ties."""
-    return sorted(scores, key=lambda x: (-x['score'], x['name']))
+def sort_users_by_score(users):
+    return sorted(users, key=lambda x: (-x["score"], x["name"]))
 
 # Verify: Test passes consistently
 ```

@@ -14,8 +14,14 @@ END = "<!-- END CANONICAL BODY -->"
 
 TARGETS = {
     "CLAUDE.md": ROOT / "CLAUDE.md",
-    ".cursor/rules/karpathy-guidelines.mdc": ROOT / ".cursor" / "rules" / "karpathy-guidelines.mdc",
-    "skills/karpathy-guidelines/SKILL.md": ROOT / "skills" / "karpathy-guidelines" / "SKILL.md",
+    ".cursor/rules/karpathy-guidelines.mdc": ROOT
+    / ".cursor"
+    / "rules"
+    / "karpathy-guidelines.mdc",
+    "skills/karpathy-guidelines/SKILL.md": ROOT
+    / "skills"
+    / "karpathy-guidelines"
+    / "SKILL.md",
 }
 
 
@@ -62,7 +68,7 @@ def render_skill(body: str) -> str:
         "license: MIT\n"
         "---\n\n"
         "# Karpathy Guidelines\n\n"
-        "Behavioral guidelines to reduce common LLM coding mistakes, derived from [Andrej Karpathy's observations](https://x.com/karpathy/status/2015883857489522876) on LLM coding pitfalls.\n\n"
+        "Karpathy-inspired behavioral guidelines for coding agents.\n\n"
         "<!-- GENERATED: Run `python3 scripts/sync_guidelines.py` -->\n\n"
         f"{BEGIN}\n"
         f"{body}"

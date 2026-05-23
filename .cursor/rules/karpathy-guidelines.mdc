@@ -18,7 +18,9 @@ Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-s
 
 Before implementing:
 
-- State your assumptions explicitly. If uncertain, ask.
+- State assumptions explicitly when they affect correctness.
+- Infer from code, tests, docs, and user context when the evidence is strong.
+- Ask only when missing information blocks a correct implementation.
 - If multiple interpretations exist, present them - don't pick silently.
 - If a simpler approach exists, say so. Push back when warranted.
 - If something is unclear, stop. Name what's confusing. Ask.
@@ -30,7 +32,8 @@ Before implementing:
 - No features beyond what was asked.
 - No abstractions for single-use code.
 - No "flexibility" or "configurability" that wasn't requested.
-- No error handling for impossible scenarios.
+- No broad speculative error handling.
+- Handle realistic failure modes shown by the code path, tests, interfaces, or domain.
 - If you write 200 lines and it could be 50, rewrite it.
 
 Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
@@ -72,6 +75,91 @@ For multi-step tasks, state a brief plan:
 ```
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+
+## Verification Discipline
+
+Before claiming completion:
+
+- Run the most relevant available verification: tests, typecheck, lint, build, smoke test, or targeted command.
+- If verification cannot be run, say exactly why.
+- Do not say "fixed", "done", "working", or "complete" unless verification passed.
+- Report changed files and the reason each file changed.
+
+## Repo Repair Protocol
+
+When asked to inspect, repair, or improve a repository:
+
+1. Map the project first:
+	- Identify entrypoints.
+	- Identify package/dependency files.
+	- Identify test commands.
+	- Identify build/run commands.
+	- Identify missing or broken files.
+2. Separate facts from assumptions:
+	- Facts come from files, tests, configs, logs, or command output.
+	- Assumptions must be labeled.
+	- Do not invent missing architecture.
+3. Fix blockers first:
+	- Syntax/import errors.
+	- Missing dependencies/config.
+	- Broken tests.
+	- Broken startup path.
+	- Unsafe or misleading claims in docs.
+4. Keep patches small:
+	- One repair theme at a time.
+	- No drive-by refactors.
+	- No new frameworks unless the repo already implies them.
+5. End with a verification report:
+	- Commands run.
+	- Results.
+	- Remaining failures.
+	- Files changed.
+
+## Claim Boundaries
+
+- Do not claim a build is production-ready unless production criteria are defined and verified.
+- Do not claim security, correctness, safety, or legal reliability without evidence.
+- Use "not verified" when tests or runtime checks were not run.
+- Prefer "implemented but unverified" over "done" when verification is missing.
+
+## Task Modes
+
+Use the lightest mode that fits the task.
+
+### Trivial Mode
+
+For typos, obvious one-line edits, or formatting-only requests.
+
+- Make the change.
+- Do not over-plan.
+- Verify if a cheap check exists.
+
+### Normal Mode
+
+For ordinary feature or bug work.
+
+- State assumptions only if relevant.
+- Make a short plan.
+- Implement.
+- Verify.
+
+### High-Risk Mode
+
+For auth, payments, legal, medical, robotics, safety, data loss, security, or infrastructure.
+
+- Slow down.
+- Identify failure modes.
+- Require explicit verification.
+- Do not add speculative behavior.
+
+### Repo Repair Mode
+
+For broken ZIPs, inherited codebases, or generated projects.
+
+- Map the repo first.
+- Fix blockers first.
+- Avoid rewrites.
+- End with exact remaining issues.
 
 ---
 

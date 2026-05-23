@@ -1,4 +1,4 @@
-# Karpathy-Inspired Claude Code Guidelines
+# Karpathy-Inspired Coding Agent Guidelines
 
 <p align="center">
   <strong>A practical instruction pack that makes coding agents more reliable, simpler, and less destructive.</strong>
@@ -14,7 +14,9 @@
   <img alt="Validation" src="https://img.shields.io/badge/validation-required-f59e0b">
 </p>
 
-A single guideline system inspired by [Andrej Karpathy's observations](https://x.com/karpathy/status/2015883857489522876) on common LLM coding failure modes.
+> Not affiliated with or endorsed by Andrej Karpathy.
+
+A small instruction pack for coding agents, inspired by public observations from Andrej Karpathy about LLM coding pitfalls. This project is not affiliated with or endorsed by Andrej Karpathy.
 
 ## Why This Exists
 
@@ -89,6 +91,25 @@ Generated targets:
 
 ## Development
 
+The canonical guideline body lives in:
+
+```text
+docs/guidelines.md
+```
+
+After editing it, regenerate derived files:
+
+```bash
+python3 scripts/sync_guidelines.py
+```
+
+Check sync and validation:
+
+```bash
+python3 scripts/sync_guidelines.py --check
+python3 scripts/validate.py
+```
+
 Run validation before committing:
 
 ```bash
@@ -96,6 +117,12 @@ python3 scripts/validate.py
 ```
 
 This checks plugin JSON, Cursor frontmatter, required guideline sections, canonical body sync, and forbidden outdated wording/patterns.
+
+The generated files are:
+
+- `CLAUDE.md`
+- `.cursor/rules/karpathy-guidelines.mdc`
+- `skills/karpathy-guidelines/SKILL.md`
 
 ## What Good Looks Like
 

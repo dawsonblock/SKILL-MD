@@ -1,10 +1,12 @@
-# 受 Karpathy 启发的 Claude Code 指南
+# 受 Karpathy 启发的编码代理指南
+
+> 本项目与 Andrej Karpathy 无关，也未得到其认可。
 
 > 查看我的新项目 [Multica](https://github.com/multica-ai/multica) —— 一个用于运行和管理编码智能体的开源平台，支持可复用的技能。
 >
 > 在 X 上关注我：[https://x.com/jiayuan_jy](https://x.com/jiayuan_jy)
 
-一个单一的 `CLAUDE.md` 文件，用于改善 Claude Code 的行为，源自 [Andrej Karpathy 的观察](https://x.com/karpathy/status/2015883857489522876) 关于 LLM 编码陷阱的总结。
+一个面向编码代理的小型指令包，灵感来自 Andrej Karpathy 对 LLM 编码陷阱的公开观察。本项目与 Andrej Karpathy 无关，也未得到其认可。
 
 [English](./README.md) | 简体中文
 
@@ -170,6 +172,25 @@ curl https://raw.githubusercontent.com/forrestchang/andrej-karpathy-skills/main/
 
 ## 开发
 
+规范指南正文位于：
+
+```text
+docs/guidelines.md
+```
+
+修改后先生成派生文件：
+
+```bash
+python3 scripts/sync_guidelines.py
+```
+
+再检查同步和校验：
+
+```bash
+python3 scripts/sync_guidelines.py --check
+python3 scripts/validate.py
+```
+
 提交前请先运行校验：
 
 ```bash
@@ -177,6 +198,12 @@ python3 scripts/validate.py
 ```
 
 该脚本会检查插件 JSON、Cursor frontmatter、必需的指南章节，以及过时措辞是否仍然存在。
+
+生成的文件包括：
+
+- `CLAUDE.md`
+- `.cursor/rules/karpathy-guidelines.mdc`
+- `skills/karpathy-guidelines/SKILL.md`
 
 ## 许可
 
