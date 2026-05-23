@@ -393,6 +393,27 @@ class CheckScriptTests(unittest.TestCase):
 
 
 class PackageReleaseTests(unittest.TestCase):
+    def test_package_release_uses_current_root_name_for_archive_name(self):
+        expected_root_name = package_release.normalize_release_root_name(
+            package_release.ROOT.name
+        )
+        self.assertEqual(package_release.RELEASE_ROOT_NAME, expected_root_name)
+        self.assertEqual(
+            package_release.ARCHIVE_NAME,
+            f"{expected_root_name}-fixed.zip",
+        )
+        self.assertNotIn("-main-main", package_release.ARCHIVE_NAME)
+
+    def test_normalize_release_root_name_adds_main_once(self):
+        self.assertEqual(
+            package_release.normalize_release_root_name("SKILL-MD"),
+            "SKILL-MD-main",
+        )
+        self.assertEqual(
+            package_release.normalize_release_root_name("SKILL-MD-main"),
+            "SKILL-MD-main",
+        )
+
     def test_create_archive_excludes_junk_entries(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
             tmp_root = Path(tmp_dir) / "repo"
@@ -423,6 +444,12 @@ class PackageReleaseTests(unittest.TestCase):
 
             with zipfile.ZipFile(archive_path, "r") as archive:
                 names = archive.namelist()
+
+            expected_prefix = f"{package_release.RELEASE_ROOT_NAME}/"
+            self.assertTrue(
+                all(name.startswith(expected_prefix) for name in names),
+                f"Expected all archive entries to start with {expected_prefix}; got {names}",
+            )
 
             self.assertTrue(
                 any(name.endswith("README.md") for name in names),

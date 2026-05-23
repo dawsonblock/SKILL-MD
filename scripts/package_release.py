@@ -12,7 +12,15 @@ import tempfile
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-RELEASE_ROOT_NAME = f"{ROOT.name}-main"
+
+
+def normalize_release_root_name(root_name: str) -> str:
+    if root_name.endswith("-main"):
+        return root_name
+    return f"{root_name}-main"
+
+
+RELEASE_ROOT_NAME = normalize_release_root_name(ROOT.name)
 ARCHIVE_NAME = f"{RELEASE_ROOT_NAME}-fixed.zip"
 OUTPUT_PATH = ROOT / "dist" / ARCHIVE_NAME
 
