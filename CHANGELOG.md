@@ -14,6 +14,7 @@
 - Updated CI to disable Python bytecode generation.
 - Re-runs validation after unit tests in CI.
 - Documented bytecode-safe local validation commands.
+- Added `scripts/check.py` one-command local verification runner.
 - Softened remaining clarification wording to avoid unnecessary stops.
 
 ## 1.1.0

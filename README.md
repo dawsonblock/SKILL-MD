@@ -112,6 +112,12 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p "test_*.py"
 PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate.py
 ```
 
+Or run the full sequence with one command:
+
+```bash
+python3 scripts/check.py
+```
+
 Run validation before committing:
 
 ```bash
@@ -151,6 +157,7 @@ For concrete before/after examples, see [EXAMPLES.md](EXAMPLES.md).
 ├── docs/
 │   └── guidelines.md
 ├── scripts/
+│   ├── check.py
 │   ├── sync_guidelines.py
 │   └── validate.py
 ├── skills/

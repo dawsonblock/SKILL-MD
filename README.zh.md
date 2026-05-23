@@ -192,6 +192,12 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p "test_*.py"
 PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate.py
 ```
 
+也可以用一个命令执行完整检查：
+
+```bash
+python3 scripts/check.py
+```
+
 提交前请先运行校验：
 
 ```bash
