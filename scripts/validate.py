@@ -24,6 +24,14 @@ REQUIRED_CANONICAL_PHRASES = [
     "Output Discipline",
 ]
 
+REQUIRED_README_PHRASES = [
+    "Blocking clarifying questions only when required for correctness",
+]
+
+REQUIRED_ZH_README_PHRASES = [
+    "只有在正确性受阻时才提出必要澄清问题",
+]
+
 FORBIDDEN_PHRASES = [
     "State your assumptions explicitly. If uncertain, ask.",
     "No error handling for impossible scenarios.",
@@ -365,6 +373,20 @@ def check_readme_disclaimers(errors: list[str]) -> None:
             errors.append("README.zh.md missing non-affiliation disclaimer")
 
 
+def validate_readme_polished_wording() -> None:
+    readme = read(ROOT / "README.md")
+    missing = [phrase for phrase in REQUIRED_README_PHRASES if phrase not in readme]
+    if missing:
+        raise SystemExit(f"README.md missing polished wording: {missing}")
+
+
+def validate_readme_zh_polished_wording() -> None:
+    readme = read(ROOT / "README.zh.md")
+    missing = [phrase for phrase in REQUIRED_ZH_README_PHRASES if phrase not in readme]
+    if missing:
+        raise SystemExit(f"README.zh.md missing polished wording: {missing}")
+
+
 def check_readme_version_badge(errors: list[str]) -> None:
     readme_path = ROOT / "README.md"
     if not readme_path.exists():
@@ -434,6 +456,14 @@ def main() -> int:
     check_forbidden_wording(errors)
     check_forbidden_phrases(errors)
     check_readme_disclaimers(errors)
+    try:
+        validate_readme_polished_wording()
+    except SystemExit as exc:
+        errors.append(str(exc))
+    try:
+        validate_readme_zh_polished_wording()
+    except SystemExit as exc:
+        errors.append(str(exc))
     check_examples(errors)
     check_no_junk_files(errors)
 

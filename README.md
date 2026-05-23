@@ -90,6 +90,27 @@ Generated targets:
 - [.github/copilot-instructions.md](.github/copilot-instructions.md)
 - [skills/karpathy-guidelines/SKILL.md](skills/karpathy-guidelines/SKILL.md)
 
+## Supported coding-agent targets
+
+The canonical guideline body is stored in:
+
+```text
+docs/guidelines.md
+```
+
+Generated targets:
+
+- [CLAUDE.md](CLAUDE.md) (Claude Code project instructions)
+- [.cursor/rules/karpathy-guidelines.mdc](.cursor/rules/karpathy-guidelines.mdc) (Cursor rules)
+- [.github/copilot-instructions.md](.github/copilot-instructions.md) (VS Code Copilot repository instructions)
+- [skills/karpathy-guidelines/SKILL.md](skills/karpathy-guidelines/SKILL.md) (skill-style distribution)
+
+Do not edit generated bodies directly. Edit [docs/guidelines.md](docs/guidelines.md), then run:
+
+```bash
+python3 scripts/check.py
+```
+
 ## Using with VS Code Copilot
 
 This repository includes Copilot custom instructions at:
@@ -151,6 +172,21 @@ python3 scripts/package_release.py
 
 This creates `dist/SKILL-MD-main-fixed.zip`, extracts it to a temporary directory, and reruns `scripts/check.py` against the extracted copy.
 
+## Release checklist
+
+Before publishing a ZIP:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/check.py
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/package_release.py
+```
+
+The release package is written to:
+
+`dist/SKILL-MD-main-fixed.zip`
+
+The package script runs validation, removes junk/cache files, creates the archive, extracts it into a temporary directory, and verifies the extracted copy.
+
 Run validation before committing:
 
 ```bash
@@ -172,10 +208,11 @@ The generated files are:
 
 A healthy setup typically produces:
 
-- Smaller, cleaner diffs with fewer unrelated edits
-- Fewer overengineered rewrites
-- Clarifying questions before implementation
-- Stronger test-and-verify loops for non-trivial tasks
+- Smaller, more focused diffs.
+- Blocking clarifying questions only when required for correctness.
+- Explicit assumptions when they affect implementation.
+- Verification commands before completion claims.
+- Clear reports of changed files, verification results, and remaining failures.
 
 For concrete before/after examples, see [EXAMPLES.md](EXAMPLES.md).
 

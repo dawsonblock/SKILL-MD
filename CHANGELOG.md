@@ -2,6 +2,10 @@
 
 ## 1.1.1
 
+- Tightened README wording around clarification behavior.
+- Added validation for README clarification wording.
+- Reduced noisy test output.
+- Added final release-check documentation.
 - Quoted generated YAML frontmatter descriptions.
 - Added validation for frontmatter description quoting.
 - Fixed stale Chinese README guidance.

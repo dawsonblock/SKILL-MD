@@ -1,4 +1,6 @@
 import importlib.util
+import contextlib
+import io
 import re
 import tempfile
 import unittest
@@ -155,6 +157,39 @@ class ChineseForbiddenPhraseTests(unittest.TestCase):
 
 
 class ValidationFailureModeTests(unittest.TestCase):
+    def test_validate_rejects_missing_readme_polished_wording(self):
+        path = ROOT / "README.md"
+        original = path.read_text(encoding="utf-8")
+        self.assertIn(
+            "Blocking clarifying questions only when required for correctness",
+            original,
+        )
+        try:
+            broken = original.replace(
+                "Blocking clarifying questions only when required for correctness",
+                "Clarifying questions before implementation",
+            )
+            path.write_text(broken, encoding="utf-8")
+            with self.assertRaises(SystemExit):
+                validate.validate_readme_polished_wording()
+        finally:
+            path.write_text(original, encoding="utf-8")
+
+    def test_validate_rejects_missing_zh_readme_polished_wording(self):
+        path = ROOT / "README.zh.md"
+        original = path.read_text(encoding="utf-8")
+        self.assertIn("只有在正确性受阻时才提出必要澄清问题", original)
+        try:
+            broken = original.replace(
+                "只有在正确性受阻时才提出必要澄清问题",
+                "如果不确定就先询问",
+            )
+            path.write_text(broken, encoding="utf-8")
+            with self.assertRaises(SystemExit):
+                validate.validate_readme_zh_polished_wording()
+        finally:
+            path.write_text(original, encoding="utf-8")
+
     def test_validate_rejects_stale_chinese_assumption_wording(self):
         target = ROOT / "README.zh.md"
         original = target.read_text(encoding="utf-8")
@@ -338,7 +373,8 @@ class SyncResilienceTests(unittest.TestCase):
                 }
                 sync.sys.argv = ["sync_guidelines.py"]
 
-                result = sync.main()
+                with contextlib.redirect_stdout(io.StringIO()):
+                    result = sync.main()
             finally:
                 sync.ROOT = original_root
                 sync.CANONICAL_PATH = original_canonical
@@ -378,7 +414,8 @@ class CheckScriptTests(unittest.TestCase):
                     return Result()
 
                 check.subprocess.run = fake_run
-                result = check.main()
+                with contextlib.redirect_stdout(io.StringIO()):
+                    result = check.main()
             finally:
                 check.ROOT = original_root
                 check.subprocess.run = original_run
@@ -501,7 +538,8 @@ class CopilotSupportTests(unittest.TestCase):
                 }
                 sync.sys.argv = ["sync_guidelines.py"]
 
-                result = sync.main()
+                with contextlib.redirect_stdout(io.StringIO()):
+                    result = sync.main()
             finally:
                 sync.ROOT = original_root
                 sync.CANONICAL_PATH = original_canonical

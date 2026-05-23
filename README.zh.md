@@ -132,6 +132,27 @@ curl https://raw.githubusercontent.com/forrestchang/andrej-karpathy-skills/main/
 
 共享指南的规范内容位于 **[`docs/guidelines.md`](docs/guidelines.md)**。面向不同工具的文件由 **[`scripts/sync_guidelines.py`](scripts/sync_guidelines.py)** 生成。
 
+## 支持的编码代理目标
+
+规范指南正文位于：
+
+```text
+docs/guidelines.md
+```
+
+生成目标包括：
+
+- `CLAUDE.md`（Claude Code 项目级指令）
+- `.cursor/rules/karpathy-guidelines.mdc`（Cursor 规则）
+- `.github/copilot-instructions.md`（VS Code Copilot 仓库级指令）
+- `skills/karpathy-guidelines/SKILL.md`（技能式分发）
+
+不要直接编辑生成文件正文。请修改 `docs/guidelines.md` 后运行：
+
+```bash
+python3 scripts/check.py
+```
+
 ## 核心洞察
 
 来自 Andrej：
@@ -144,10 +165,11 @@ curl https://raw.githubusercontent.com/forrestchang/andrej-karpathy-skills/main/
 
 如果你看到以下情况，说明这些指南正在发挥作用：
 
-- **diff 中不必要的改动更少** —— 只有请求的改动出现
-- **因过度复杂而导致的重写更少** —— 代码第一次就写得简洁
-- **澄清问题在实现之前提出** —— 而不是在犯错之后
-- **干净、精简的 PR** —— 没有顺带的重构或"改进"
+- 更小、更聚焦的代码差异。
+- 只有在正确性受阻时才提出必要澄清问题。
+- 只在影响实现正确性时明确说明假设。
+- 在声称完成前运行验证命令。
+- 清楚报告修改文件、验证结果和剩余失败项。
 
 ## 定制
 
@@ -206,6 +228,19 @@ python3 scripts/package_release.py
 
 该命令会生成 `dist/SKILL-MD-main-fixed.zip`，解压到临时目录，并在解压副本中再次运行 `scripts/check.py`。
 
+## 发布检查
+
+发布 ZIP 前运行：
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/check.py
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/package_release.py
+```
+
+发布包会生成到：
+
+`dist/SKILL-MD-main-fixed.zip`
+
 提交前请先运行校验：
 
 ```bash
@@ -220,6 +255,7 @@ PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate.py
 
 - `CLAUDE.md`
 - `.cursor/rules/karpathy-guidelines.mdc`
+- `.github/copilot-instructions.md`
 - `skills/karpathy-guidelines/SKILL.md`
 
 ## 许可
