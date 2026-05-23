@@ -1,4 +1,5 @@
 import importlib.util
+import re
 import unittest
 from pathlib import Path
 
@@ -145,6 +146,106 @@ class ChineseForbiddenPhraseTests(unittest.TestCase):
         self.assertTrue(
             any("README.zh.md" in err for err in errors),
             f"Expected missing-disclaimer error; got: {errors}",
+        )
+
+
+class ValidationFailureModeTests(unittest.TestCase):
+    def test_validate_rejects_stale_chinese_assumption_wording(self):
+        target = ROOT / "README.zh.md"
+        original = target.read_text(encoding="utf-8")
+        errors = []
+        try:
+            target.write_text(
+                original + "\n如果不确定，询问而不是猜测\n", encoding="utf-8"
+            )
+            validate.check_forbidden_phrases(errors)
+        finally:
+            target.write_text(original, encoding="utf-8")
+
+        self.assertTrue(
+            any(
+                "README.zh.md" in err and "如果不确定，询问而不是猜测" in err
+                for err in errors
+            ),
+            f"Expected stale assumption phrase failure; got: {errors}",
+        )
+
+    def test_validate_rejects_stale_chinese_error_wording(self):
+        target = ROOT / "README.zh.md"
+        original = target.read_text(encoding="utf-8")
+        errors = []
+        try:
+            target.write_text(
+                original + "\n不要为不可能发生的场景做错误处理\n",
+                encoding="utf-8",
+            )
+            validate.check_forbidden_phrases(errors)
+        finally:
+            target.write_text(original, encoding="utf-8")
+
+        self.assertTrue(
+            any(
+                "README.zh.md" in err and "不要为不可能发生的场景做错误处理" in err
+                for err in errors
+            ),
+            f"Expected stale error wording failure; got: {errors}",
+        )
+
+    def test_validate_rejects_unquoted_frontmatter_description(self):
+        path = ROOT / ".cursor" / "rules" / "karpathy-guidelines.mdc"
+        original = path.read_text(encoding="utf-8")
+        errors = []
+        try:
+            broken = re.sub(
+                r'^description: ".*"$',
+                "description: Karpathy-inspired behavioral guidelines for coding agents: clarify assumptions, keep changes simple, edit surgically, and verify before claiming completion.",
+                original,
+                count=1,
+                flags=re.MULTILINE,
+            )
+            path.write_text(broken, encoding="utf-8")
+            validate.check_frontmatter_descriptions_are_quoted(errors)
+        finally:
+            path.write_text(original, encoding="utf-8")
+
+        self.assertTrue(
+            any("description frontmatter must be quoted" in err for err in errors),
+            f"Expected unquoted frontmatter failure; got: {errors}",
+        )
+
+    def test_validate_rejects_pyc_files(self):
+        junk = ROOT / "tests" / "dummy.pyc"
+        errors = []
+        try:
+            junk.write_bytes(b"compiled-cache")
+            validate.check_no_junk_files(errors)
+        finally:
+            if junk.exists():
+                junk.unlink()
+
+        self.assertTrue(
+            any("dummy.pyc" in err for err in errors),
+            f"Expected junk file failure; got: {errors}",
+        )
+
+    def test_sync_check_rejects_generated_file_drift(self):
+        path = ROOT / "CLAUDE.md"
+        original = path.read_text(encoding="utf-8")
+        errors = []
+        try:
+            drifted = original.replace(
+                "## 1. Think Before Coding",
+                "## 1. Think Before Coding (DRIFT)",
+                1,
+            )
+            path.write_text(drifted, encoding="utf-8")
+            validate.check_canonical_sync(errors)
+        finally:
+            path.write_text(original, encoding="utf-8")
+
+        self.assertTrue(
+            any("Guideline body drift detected" in err for err in errors),
+            f"Expected sync drift failure; got: {errors}",
         )
 
 

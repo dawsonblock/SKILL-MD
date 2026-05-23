@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.1
+
+- Quoted generated YAML frontmatter descriptions.
+- Added validation for frontmatter description quoting.
+- Fixed stale Chinese README guidance.
+- Added Chinese stale wording checks.
+- Added cache/junk file validation.
+- Removed compiled Python cache files from release archives.
+- Expanded tests for validation failure modes.
+
 ## 1.1.0
 
 - Added canonical `docs/guidelines.md`.

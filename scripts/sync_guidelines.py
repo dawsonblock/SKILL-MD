@@ -11,6 +11,10 @@ CANONICAL_PATH = ROOT / "docs" / "guidelines.md"
 
 BEGIN = "<!-- BEGIN CANONICAL BODY -->"
 END = "<!-- END CANONICAL BODY -->"
+DESCRIPTION = (
+    "Karpathy-inspired behavioral guidelines for coding agents: clarify assumptions, "
+    "keep changes simple, edit surgically, and verify before claiming completion."
+)
 
 TARGETS = {
     "CLAUDE.md": ROOT / "CLAUDE.md",
@@ -53,7 +57,7 @@ def render_claude(body: str) -> str:
 def render_mdc(body: str) -> str:
     return (
         "---\n"
-        "description: Karpathy-inspired behavioral guidelines for coding agents: clarify assumptions, keep changes simple, edit surgically, and verify before claiming completion.\n"
+        f'description: "{DESCRIPTION}"\n'
         "alwaysApply: true\n"
         "---\n\n"
         "# Karpathy behavioral guidelines\n\n"
@@ -68,7 +72,7 @@ def render_skill(body: str) -> str:
     return (
         "---\n"
         "name: karpathy-guidelines\n"
-        "description: Karpathy-inspired behavioral guidelines for coding agents: clarify assumptions, keep changes simple, edit surgically, and verify before claiming completion.\n"
+        f'description: "{DESCRIPTION}"\n'
         "license: MIT\n"
         "---\n\n"
         "# Karpathy Guidelines\n\n"

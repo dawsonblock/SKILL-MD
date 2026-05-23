@@ -29,6 +29,23 @@ FORBIDDEN_PHRASES = [
     "No error handling for impossible scenarios.",
     "derived from Andrej Karpathy's observations",
     "查看我的新项目",
+    "如果不确定，询问而不是猜测",
+    "不要为不可能发生的场景做错误处理",
+]
+
+FORBIDDEN_PATH_PARTS = [
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    "node_modules",
+]
+
+FORBIDDEN_FILE_SUFFIXES = [
+    ".pyc",
+]
+
+FORBIDDEN_FILE_NAMES = [
+    ".DS_Store",
 ]
 
 TEXT_FILES_TO_SCAN = [
@@ -69,6 +86,15 @@ def extract_marked_body(path: Path, text: str) -> str:
             f"Missing canonical body end marker after begin marker in {path.relative_to(ROOT)}"
         )
     return text[start:end]
+
+
+def extract_frontmatter(text: str, path: Path) -> str:
+    if not text.startswith("---\n"):
+        raise ValueError(f"{path.relative_to(ROOT)}: missing frontmatter")
+    parts = text.split("---", 2)
+    if len(parts) < 3:
+        raise ValueError(f"{path.relative_to(ROOT)}: malformed frontmatter")
+    return parts[1]
 
 
 def check_exists(errors: list[str], rel_path: str) -> Path:
@@ -162,6 +188,37 @@ def check_cursor_frontmatter(errors: list[str]) -> None:
         errors.append("Cursor rule frontmatter must contain alwaysApply: true")
     if "description:" not in frontmatter:
         errors.append("Cursor rule frontmatter must contain description")
+
+
+def check_frontmatter_descriptions_are_quoted(errors: list[str]) -> None:
+    paths = [
+        ROOT / ".cursor" / "rules" / "karpathy-guidelines.mdc",
+        ROOT / "skills" / "karpathy-guidelines" / "SKILL.md",
+    ]
+    for path in paths:
+        if not path.exists():
+            errors.append(f"Missing required file: {path.relative_to(ROOT)}")
+            continue
+
+        try:
+            frontmatter = extract_frontmatter(read(path), path)
+        except ValueError as exc:
+            errors.append(str(exc))
+            continue
+
+        found_description = False
+        for line in frontmatter.splitlines():
+            if line.startswith("description:"):
+                found_description = True
+                value = line.split(":", 1)[1].strip()
+                if not (value.startswith('"') and value.endswith('"')):
+                    errors.append(
+                        f"{path.relative_to(ROOT)}: description frontmatter must be quoted"
+                    )
+                break
+
+        if not found_description:
+            errors.append(f"{path.relative_to(ROOT)}: missing description frontmatter")
 
 
 def check_guideline_sections(errors: list[str]) -> None:
@@ -299,11 +356,30 @@ def check_readme_disclaimers(errors: list[str]) -> None:
             errors.append("README.zh.md missing non-affiliation disclaimer")
 
 
+def check_no_junk_files(errors: list[str]) -> None:
+    for path in ROOT.rglob("*"):
+        rel = path.relative_to(ROOT)
+
+        if any(part in rel.parts for part in FORBIDDEN_PATH_PARTS):
+            errors.append(f"Forbidden junk path found: {rel}")
+            continue
+
+        if path.is_dir():
+            continue
+
+        if path.name in FORBIDDEN_FILE_NAMES:
+            errors.append(f"Forbidden junk file found: {rel}")
+
+        if any(path.name.endswith(suffix) for suffix in FORBIDDEN_FILE_SUFFIXES):
+            errors.append(f"Forbidden compiled/cache file found: {rel}")
+
+
 def main() -> int:
     errors: list[str] = []
 
     check_plugin_metadata(errors)
     check_cursor_frontmatter(errors)
+    check_frontmatter_descriptions_are_quoted(errors)
     check_content_files(errors)
     check_guideline_sections(errors)
     check_canonical_sync(errors)
@@ -311,6 +387,7 @@ def main() -> int:
     check_forbidden_phrases(errors)
     check_readme_disclaimers(errors)
     check_examples(errors)
+    check_no_junk_files(errors)
 
     if errors:
         print("Validation failed:")

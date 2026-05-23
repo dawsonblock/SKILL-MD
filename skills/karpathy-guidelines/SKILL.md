@@ -1,6 +1,6 @@
 ---
 name: karpathy-guidelines
-description: Karpathy-inspired behavioral guidelines for coding agents: clarify assumptions, keep changes simple, edit surgically, and verify before claiming completion.
+description: "Karpathy-inspired behavioral guidelines for coding agents: clarify assumptions, keep changes simple, edit surgically, and verify before claiming completion."
 license: MIT
 ---
 
