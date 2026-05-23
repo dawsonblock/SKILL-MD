@@ -22,9 +22,7 @@ TARGETS = {
     / ".cursor"
     / "rules"
     / "karpathy-guidelines.mdc",
-    ".github/copilot-instructions.md": ROOT
-    / ".github"
-    / "copilot-instructions.md",
+    ".github/copilot-instructions.md": ROOT / ".github" / "copilot-instructions.md",
     "skills/karpathy-guidelines/SKILL.md": ROOT
     / "skills"
     / "karpathy-guidelines"

@@ -494,7 +494,9 @@ class CopilotSupportTests(unittest.TestCase):
         original = path.read_text(encoding="utf-8")
         errors = []
         try:
-            drifted = original.replace("## 1. Think Before Coding", "## 1. Think Before Coding (DRIFT)", 1)
+            drifted = original.replace(
+                "## 1. Think Before Coding", "## 1. Think Before Coding (DRIFT)", 1
+            )
             path.write_text(drifted, encoding="utf-8")
             validate.check_canonical_sync(errors)
         finally:
@@ -510,7 +512,10 @@ class CopilotSupportTests(unittest.TestCase):
         original = path.read_text(encoding="utf-8")
         errors = []
         try:
-            path.write_text(original + "\nState your assumptions explicitly. If uncertain, ask.\n", encoding="utf-8")
+            path.write_text(
+                original + "\nState your assumptions explicitly. If uncertain, ask.\n",
+                encoding="utf-8",
+            )
             validate.check_forbidden_phrases(errors)
         finally:
             path.write_text(original, encoding="utf-8")
