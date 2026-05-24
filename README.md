@@ -16,7 +16,7 @@
 
 > Not affiliated with or endorsed by Andrej Karpathy.
 
-A small instruction pack for coding agents, inspired by public observations from Andrej Karpathy about LLM coding pitfalls. This project is not affiliated with or endorsed by Andrej Karpathy.
+A small instruction pack for coding agents, inspired by public observations from Andrej Karpathy about LLM coding pitfalls.
 
 ## Why This Exists
 
@@ -90,7 +90,7 @@ Generated targets:
 - [.github/copilot-instructions.md](.github/copilot-instructions.md)
 - [skills/karpathy-guidelines/SKILL.md](skills/karpathy-guidelines/SKILL.md)
 
-## Supported coding-agent targets
+## Supported Coding-Agent Targets
 
 The canonical guideline body is stored in:
 

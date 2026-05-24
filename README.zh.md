@@ -142,12 +142,12 @@ docs/guidelines.md
 
 生成目标包括：
 
-- `CLAUDE.md`（Claude Code 项目级指令）
-- `.cursor/rules/karpathy-guidelines.mdc`（Cursor 规则）
-- `.github/copilot-instructions.md`（VS Code Copilot 仓库级指令）
-- `skills/karpathy-guidelines/SKILL.md`（技能式分发）
+- [CLAUDE.md](CLAUDE.md)（Claude Code 项目级指令）
+- [.cursor/rules/karpathy-guidelines.mdc](.cursor/rules/karpathy-guidelines.mdc)（Cursor 规则）
+- [.github/copilot-instructions.md](.github/copilot-instructions.md)（VS Code Copilot 仓库级指令）
+- [skills/karpathy-guidelines/SKILL.md](skills/karpathy-guidelines/SKILL.md)（技能式分发）
 
-不要直接编辑生成文件正文。请修改 `docs/guidelines.md` 后运行：
+不要直接编辑生成文件正文。请修改 [docs/guidelines.md](docs/guidelines.md) 后运行：
 
 ```bash
 python3 scripts/check.py
