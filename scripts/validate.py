@@ -47,12 +47,14 @@ FORBIDDEN_PATH_PARTS = [
     "__pycache__",
     ".pytest_cache",
     ".mypy_cache",
+    ".ruff_cache",
     "node_modules",
     "__MACOSX",
 ]
 
 FORBIDDEN_FILE_SUFFIXES = [
     ".pyc",
+    ".pyo",
 ]
 
 FORBIDDEN_FILE_NAMES = [

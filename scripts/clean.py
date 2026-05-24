@@ -13,6 +13,7 @@ DIR_NAMES = {
     "__pycache__",
     ".pytest_cache",
     ".mypy_cache",
+    ".ruff_cache",
 }
 
 FILE_NAMES = {
@@ -25,6 +26,7 @@ FILE_PREFIXES = {
 
 FILE_SUFFIXES = {
     ".pyc",
+    ".pyo",
 }
 
 

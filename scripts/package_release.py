@@ -3,9 +3,9 @@
 
 from __future__ import annotations
 
+import importlib.util as _ilu
 import os
 from pathlib import Path, PurePosixPath
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -28,6 +28,7 @@ FORBIDDEN_PATH_PARTS = {
     "__pycache__",
     ".pytest_cache",
     ".mypy_cache",
+    ".ruff_cache",
     "node_modules",
     ".git",
     "__MACOSX",
@@ -36,30 +37,16 @@ FORBIDDEN_PATH_PARTS = {
 
 FORBIDDEN_FILE_SUFFIXES = {
     ".pyc",
+    ".pyo",
 }
 
 FORBIDDEN_FILE_NAMES = {
     ".DS_Store",
 }
 
-
-def clean_junk_files(base: Path) -> None:
-    dirs_to_remove = set()
-    for path_part in ("__pycache__", ".pytest_cache", ".mypy_cache"):
-        for path in base.rglob(path_part):
-            if path.is_dir():
-                dirs_to_remove.add(path)
-
-    for path in sorted(dirs_to_remove, key=lambda p: len(p.parts), reverse=True):
-        if path.is_symlink() or path.is_file():
-            path.unlink(missing_ok=True)
-            continue
-        shutil.rmtree(path, ignore_errors=True)
-
-    for glob_pattern in ("*.pyc", ".DS_Store"):
-        for path in base.rglob(glob_pattern):
-            if path.is_file() or path.is_symlink():
-                path.unlink(missing_ok=True)
+_spec = _ilu.spec_from_file_location("clean", Path(__file__).resolve().parent / "clean.py")
+_clean = _ilu.module_from_spec(_spec)
+_spec.loader.exec_module(_clean)
 
 
 def run_check(cwd: Path) -> int:
@@ -139,7 +126,7 @@ def main() -> int:
         return source_result
 
     print("Cleaning junk files before packaging...", flush=True)
-    clean_junk_files(ROOT)
+    _clean.clean(root=ROOT)
 
     print(f"Creating archive: {OUTPUT_PATH}", flush=True)
     file_count = create_archive(ROOT, OUTPUT_PATH)

@@ -367,6 +367,39 @@ class ValidationFailureModeTests(unittest.TestCase):
             f"Expected AppleDouble junk failure; got: {errors}",
         )
 
+    def test_validate_rejects_ruff_cache_directory(self):
+        junk_file = ROOT / ".ruff_cache" / "cache.db"
+        errors = []
+        try:
+            junk_file.parent.mkdir(parents=True, exist_ok=True)
+            junk_file.write_text("x", encoding="utf-8")
+            validate.check_no_junk_files(errors)
+        finally:
+            if junk_file.exists():
+                junk_file.unlink()
+            if junk_file.parent.exists():
+                junk_file.parent.rmdir()
+
+        self.assertTrue(
+            any(".ruff_cache" in err for err in errors),
+            f"Expected .ruff_cache junk failure; got: {errors}",
+        )
+
+    def test_validate_rejects_pyo_files(self):
+        junk = ROOT / "tests" / "dummy.pyo"
+        errors = []
+        try:
+            junk.write_bytes(b"compiled-cache")
+            validate.check_no_junk_files(errors)
+        finally:
+            if junk.exists():
+                junk.unlink()
+
+        self.assertTrue(
+            any("dummy.pyo" in err for err in errors),
+            f"Expected .pyo junk failure; got: {errors}",
+        )
+
     def test_sync_check_rejects_generated_file_drift(self):
         path = ROOT / "CLAUDE.md"
         original = path.read_text(encoding="utf-8")
@@ -592,8 +625,10 @@ class PackageReleaseTests(unittest.TestCase):
             Path("dist") / "artifact.zip",
             Path(".git") / "config",
             Path("nested") / "__pycache__" / "x.pyc",
+            Path("nested") / "__pycache__" / "x.pyo",
             Path(".pytest_cache") / "state",
             Path(".mypy_cache") / "meta.json",
+            Path(".ruff_cache") / "cache.db",
             Path("node_modules") / "lib.js",
             Path("__MACOSX") / "._README.md",
             Path("._README.md"),
@@ -707,22 +742,30 @@ class CleanScriptTests(unittest.TestCase):
             tmp_root = Path(tmp_dir)
             dist = tmp_root / "dist"
             pycache = tmp_root / "tests" / "__pycache__"
+            ruff_cache = tmp_root / ".ruff_cache"
             ds = tmp_root / ".DS_Store"
             apple = tmp_root / "._README.md"
+            pyo = tmp_root / "tests" / "artifact.pyo"
 
             dist.mkdir(parents=True, exist_ok=True)
             (dist / "x.zip").write_bytes(b"x")
             pycache.mkdir(parents=True, exist_ok=True)
             (pycache / "x.pyc").write_bytes(b"x")
+            ruff_cache.mkdir(parents=True, exist_ok=True)
+            (ruff_cache / "cache.db").write_text("x", encoding="utf-8")
             ds.write_text("", encoding="utf-8")
             apple.write_text("", encoding="utf-8")
+            pyo.parent.mkdir(parents=True, exist_ok=True)
+            pyo.write_bytes(b"x")
 
             clean.clean(root=tmp_root)
 
             self.assertFalse(dist.exists())
             self.assertFalse(pycache.exists())
+            self.assertFalse(ruff_cache.exists())
             self.assertFalse(ds.exists())
             self.assertFalse(apple.exists())
+            self.assertFalse(pyo.exists())
 
 
 if __name__ == "__main__":

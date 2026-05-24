@@ -4,11 +4,13 @@
 
 - Added `scripts/clean.py` for canonical artifact removal (removes `dist/`, caches, junk files, and AppleDouble `._*` files).
 - Refactored `scripts/check.py` to delegate cleanup to `scripts/clean.py`.
+- Refactored `scripts/package_release.py` to reuse `scripts/clean.py` cleanup behavior before packaging.
 - Excluded `.trunk/` from release archives.
 - Documented `.trunk/` as optional contributor tooling; not required and not wired into CI.
 - Updated README source-archive command from `rm -rf dist` to `scripts/clean.py`.
 - Added `scripts/clean.py` to repository layout in README and README.zh.md.
 - Added tests for `.trunk/` exclusion, comprehensive release-archive path exclusion, and `scripts/clean.py` behavior.
+- Added `.ruff_cache` and `.pyo` parity checks across cleaner, validator, release packaging, and tests.
 
 ## 1.1.1
 
