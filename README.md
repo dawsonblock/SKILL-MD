@@ -268,17 +268,24 @@ For concrete before/after examples, see [EXAMPLES.md](EXAMPLES.md).
 ├── skills/
 │   └── karpathy-guidelines/
 │       └── SKILL.md
+├── tests/
+│   └── test_validate_and_sync.py
 ├── .claude-plugin/
 │   ├── marketplace.json
 │   └── plugin.json
-└── .github/
-  ├── copilot-instructions.md
-  ├── prompts/
-  │   ├── repo-repair.prompt.md
-  │   ├── verify-change.prompt.md
-  │   └── surgical-edit.prompt.md
-    └── workflows/
-        └── validate.yml
+├── .cursor/
+│   └── rules/
+│       └── karpathy-guidelines.mdc
+├── .github/
+│   ├── copilot-instructions.md
+│   ├── prompts/
+│   │   ├── repo-repair.prompt.md
+│   │   ├── verify-change.prompt.md
+│   │   └── surgical-edit.prompt.md
+│   └── workflows/
+│       └── validate.yml
+└── .trunk/
+    └── trunk.yaml
 ```
 
 ## License
