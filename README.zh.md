@@ -237,27 +237,27 @@ PYTHONDONTWRITEBYTECODE=1 python3 scripts/check.py
 PYTHONDONTWRITEBYTECODE=1 python3 scripts/package_release.py
 ```
 
-发布包会生成到：
-
-`dist/SKILL-MD-main-fixed.zip`
+输出位置：`dist/SKILL-MD-main-fixed.zip`
 
 ## 源码包与发布包
 
 不要把 `dist/` 下生成的发布 ZIP 提交到源码包中。
 
-发布 ZIP 应通过以下命令生成：
+按用途使用以下命令：
+
+- 发布包（自动生成并验证）：
 
 ```bash
 PYTHONDONTWRITEBYTECODE=1 python3 scripts/package_release.py
 ```
 
-源码包打包前应移除生成产物：
+- 源码包打包前（先清理生成产物）：
 
 ```bash
 PYTHONDONTWRITEBYTECODE=1 python3 scripts/clean.py
 ```
 
-提交前请先运行校验：
+- 提交前校验：
 
 ```bash
 PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate.py
@@ -285,6 +285,7 @@ PYTHONDONTWRITEBYTECODE=1 python3 scripts/check.py
 ```
 
 Trunk 是面向贡献者的本地可选工具，未接入 CI 流程。
+当前环境未验证 Trunk 执行结果。
 
 ## 许可
 

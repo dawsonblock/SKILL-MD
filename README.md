@@ -174,40 +174,34 @@ This creates `dist/SKILL-MD-main-fixed.zip`, extracts it to a temporary director
 
 ## Release checklist
 
-Before publishing a ZIP:
+Before publishing a release ZIP:
 
 ```bash
 PYTHONDONTWRITEBYTECODE=1 python3 scripts/check.py
 PYTHONDONTWRITEBYTECODE=1 python3 scripts/package_release.py
 ```
 
-The release package is written to:
-
-`dist/SKILL-MD-main-fixed.zip`
-
-The package script runs validation, removes junk/cache files, creates the archive, extracts it into a temporary directory, and verifies the extracted copy.
+Output: `dist/SKILL-MD-main-fixed.zip`
 
 ## Source archive vs release archive
 
 Do not commit generated release archives under `dist/`.
 
-Source archives should contain only repository source files. Release archives are generated with:
+Use these commands by intent:
+
+- Release archive (generated + self-verified):
 
 ```bash
 PYTHONDONTWRITEBYTECODE=1 python3 scripts/package_release.py
 ```
 
-The generated release ZIP is written to:
-
-`dist/SKILL-MD-main-fixed.zip`
-
-Before packaging a source archive, remove generated artifacts:
+- Source archive prep (clean generated artifacts first):
 
 ```bash
 PYTHONDONTWRITEBYTECODE=1 python3 scripts/clean.py
 ```
 
-Run validation before committing:
+- Pre-commit validation:
 
 ```bash
 PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate.py
@@ -235,6 +229,7 @@ PYTHONDONTWRITEBYTECODE=1 python3 scripts/check.py
 ```
 
 Trunk is separate local tooling for contributors who want additional linting. It is not wired into CI.
+Trunk execution is not verified in this environment.
 
 ## What Good Looks Like
 
