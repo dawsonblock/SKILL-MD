@@ -254,7 +254,7 @@ PYTHONDONTWRITEBYTECODE=1 python3 scripts/package_release.py
 源码包打包前应移除生成产物：
 
 ```bash
-rm -rf dist
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/clean.py
 ```
 
 提交前请先运行校验：
@@ -273,6 +273,18 @@ PYTHONDONTWRITEBYTECODE=1 python3 scripts/validate.py
 - `.cursor/rules/karpathy-guidelines.mdc`
 - `.github/copilot-instructions.md`
 - `skills/karpathy-guidelines/SKILL.md`
+
+## 可选 Lint 工具
+
+本仓库在 `.trunk/` 目录下提供了可选的 Trunk 配置，使用或贡献本指令包均不需要它。
+
+核心检查仅需 Python 脚本：
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/check.py
+```
+
+Trunk 是面向贡献者的本地可选工具，未接入 CI 流程。
 
 ## 许可
 

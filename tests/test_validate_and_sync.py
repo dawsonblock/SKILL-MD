@@ -24,6 +24,7 @@ check = load_module(ROOT / "scripts" / "check.py", "check_module")
 package_release = load_module(
     ROOT / "scripts" / "package_release.py", "package_release_module"
 )
+clean = load_module(ROOT / "scripts" / "clean.py", "clean_module")
 
 
 class MarkerExtractionTests(unittest.TestCase):
@@ -580,6 +581,30 @@ class PackageReleaseTests(unittest.TestCase):
     def test_package_release_excludes_appledouble_file(self):
         self.assertFalse(package_release.should_include(Path("._README.md")))
 
+    def test_package_release_excludes_trunk_from_release_zip(self):
+        self.assertIn(".trunk", package_release.FORBIDDEN_PATH_PARTS)
+        self.assertFalse(
+            package_release.should_include(Path(".trunk") / "trunk.yaml")
+        )
+
+    def test_release_archive_excludes_source_only_and_junk_paths(self):
+        forbidden = [
+            Path("dist") / "artifact.zip",
+            Path(".git") / "config",
+            Path("nested") / "__pycache__" / "x.pyc",
+            Path(".pytest_cache") / "state",
+            Path(".mypy_cache") / "meta.json",
+            Path("node_modules") / "lib.js",
+            Path("__MACOSX") / "._README.md",
+            Path("._README.md"),
+            Path(".trunk") / "trunk.yaml",
+        ]
+        for path in forbidden:
+            self.assertFalse(
+                package_release.should_include(path),
+                f"Expected {path} to be excluded from release archive",
+            )
+
 
 class CopilotSupportTests(unittest.TestCase):
     def test_copilot_instructions_generated(self):
@@ -674,6 +699,30 @@ class CopilotSupportTests(unittest.TestCase):
             ),
             f"Expected copilot forbidden-phrase failure; got: {errors}",
         )
+
+
+class CleanScriptTests(unittest.TestCase):
+    def test_clean_removes_dist_and_cache_files(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_root = Path(tmp_dir)
+            dist = tmp_root / "dist"
+            pycache = tmp_root / "tests" / "__pycache__"
+            ds = tmp_root / ".DS_Store"
+            apple = tmp_root / "._README.md"
+
+            dist.mkdir(parents=True, exist_ok=True)
+            (dist / "x.zip").write_bytes(b"x")
+            pycache.mkdir(parents=True, exist_ok=True)
+            (pycache / "x.pyc").write_bytes(b"x")
+            ds.write_text("", encoding="utf-8")
+            apple.write_text("", encoding="utf-8")
+
+            clean.clean(root=tmp_root)
+
+            self.assertFalse(dist.exists())
+            self.assertFalse(pycache.exists())
+            self.assertFalse(ds.exists())
+            self.assertFalse(apple.exists())
 
 
 if __name__ == "__main__":

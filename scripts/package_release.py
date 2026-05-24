@@ -31,6 +31,7 @@ FORBIDDEN_PATH_PARTS = {
     "node_modules",
     ".git",
     "__MACOSX",
+    ".trunk",
 }
 
 FORBIDDEN_FILE_SUFFIXES = {

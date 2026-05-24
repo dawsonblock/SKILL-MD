@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-1.1.1-2563eb">
+  <img alt="Version" src="https://img.shields.io/badge/version-1.1.2-2563eb">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-16a34a">
   <img alt="Validation" src="https://img.shields.io/badge/validation-required-f59e0b">
 </p>
@@ -201,10 +201,10 @@ The generated release ZIP is written to:
 
 `dist/SKILL-MD-main-fixed.zip`
 
-Before packaging a source archive, remove generated release artifacts:
+Before packaging a source archive, remove generated artifacts:
 
 ```bash
-rm -rf dist
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/clean.py
 ```
 
 Run validation before committing:
@@ -223,6 +223,18 @@ The generated files are:
 - `.cursor/rules/karpathy-guidelines.mdc`
 - `.github/copilot-instructions.md`
 - `skills/karpathy-guidelines/SKILL.md`
+
+## Optional lint tooling
+
+This repo includes optional Trunk configuration under `.trunk/`. It is not required to use or contribute to the instruction package.
+
+Required checks use only the Python scripts:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/check.py
+```
+
+Trunk is separate local tooling for contributors who want additional linting. It is not wired into CI.
 
 ## What Good Looks Like
 
@@ -249,6 +261,7 @@ For concrete before/after examples, see [EXAMPLES.md](EXAMPLES.md).
 │   └── guidelines.md
 ├── scripts/
 │   ├── check.py
+│   ├── clean.py
 │   ├── package_release.py
 │   ├── sync_guidelines.py
 │   └── validate.py
